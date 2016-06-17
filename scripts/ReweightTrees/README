@@ -1,3 +1,16 @@
+Documentation frozen, AN-2016-030
+
+cd notes
+eval `./tdr runtime -sh`
+cd AN-16-030/trunk
+tdr  --style=an b AN-16-030
+
+svn co -N svn+ssh://acarvalh@svn.cern.ch/reps/tdr2 ANPAS2016
+cd ANPAS2016/
+svn update utils
+svn update -N notes
+svn update notes/AN-16-030
+
 
 The input files in lxplus are in
 inputLM = "/afs/cern.ch/work/z/zghiche/public/ForXanda/NRDir_LM_350/"
