@@ -28,6 +28,7 @@ nclu=12
 nout=6
 Nlambda=52
 
+#Nvarbinmass=91 
 Nvarbinmass=91 
 Nvarbincosth=11
 #a = np.ones((3,2))        # a 2D array with 3 rows, 2 columns, filled with ones
@@ -69,8 +70,8 @@ for cluster in range(0,nclu) :
     Yaxis = histo2D[cluster].GetYaxis()
     for ibin in range(0,int(Nvarbinmass)) :
        for ibin2 in range(0,int(Nvarbincosth)) :
-           mass = float(1810- 20*(ibin)) 
-           cost = 1.1- 0.2*(ibin2)
+           mass = float(1801- 20*(ibin)) 
+           cost = 1.01- 0.2*(ibin2)
            #print str(mass) + " " + str(cost)
            binspot= histo2D[cluster].FindBin(mass,cost)
            nevBin = histo2D[cluster].GetBinContent(int(binspot))
@@ -125,9 +126,9 @@ gDirectory.cd("lamdaOnly")
 for cluster in range(0,Nlambda) :
     histoname = str(cluster)+"_bin1"
     histo2Dlam[cluster] =  gDirectory.Get(histoname)
-    c=ROOT.TCanvas()
-    histo2Dlam[cluster].Draw()
-    c.Print("teste_lam.png")
+    #c=ROOT.TCanvas()
+    #histo2Dlam[cluster].Draw()
+    #c.Print("teste_lam.png")
     Xaxis = histo2Dlam[cluster].GetXaxis()
     Yaxis = histo2Dlam[cluster].GetYaxis()
     for ibin in range(0,int(Nvarbinmass)) :
@@ -235,6 +236,7 @@ gROOT.ProcessLine(\
                   Double_t mHH;\
                   Double_t cosTheta;\
                   Double_t wBox;\
+                  Double_t wFlat;\
                   Double_t bench1;\
                   Double_t bench1_out1;\
                   Double_t bench1_out2;\
@@ -417,6 +419,7 @@ for files in range(0,13) :
            weightLam = np.zeros((Nlambda))
            weighout = [[0]*nout]*nclu
            weightvalidation=0
+           weightFlat=0
            ###############
            # find the bin
            imass=-1 
@@ -435,24 +438,35 @@ for files in range(0,13) :
            #print "matrices: "+str(Matrix1[0][imass][icosth])+" "+str(Matrix1validationhigh[imass][icosth]) + " " + str(Matrix2high[imass][icosth])
            if (imass < 0 or icosth < 0): print "no bin found - weight event by event " +str(Mtotgen)+" "+str(Costgen)
            elif (Matrix2high[imass][icosth] > 0 ) :
+              weightFlat = float(1/Matrix2high[imass][icosth])
               weightvalidation = float(Matrix1validationhigh[imass][icosth]/Matrix2high[imass][icosth])
               for ii in range(0,nclu) : weightclu[ii] = float(Matrix1[ii][imass][icosth]/Matrix2high[imass][icosth])
               for ii in range(0,nclu) : 
                   for jj in range(0,nout) : weighout[ii][jj] = float(Matrix1out[ii][jj][imass][icosth]/Matrix2high[imass][icosth])
               for ii in range(0,Nlambda) : weightLam[ii] = float(Matrix2out[ii][imass][icosth]/Matrix2high[imass][icosth])
            else :
+               #print "too many bins? The corresponding on validation "+str(Matrix1validationhigh[imass][icosth])
               weightvalidation = float(0)
-              for ii in range(0,nclu) : weightclu[ii] = float(0)
+              if (Matrix1validationhigh[imass][icosth] > 3) : print "too many bins? The corresponding on validation "+str(Matrix1validationhigh[imass][icosth])
               for ii in range(0,nclu) : 
-                  for jj in range(0,nout) : weighout[ii][jj] = float(0)
-              for ii in range(0,Nlambda) : weightLam[ii] = float(0)
+                  weightclu[ii] = float(0)
+                  if (Matrix1[ii][imass][icosth] > 3) : print "too many bins? The corresponding on validation "+str(Matrix1[ii][imass][icosth])
+              for ii in range(0,nclu) : 
+                  for jj in range(0,nout) : 
+                      weighout[ii][jj] = float(0)
+                      if (Matrix1out[ii][jj][imass][icosth] > 3) : print "too many bins? The corresponding on validation "+str(Matrix1out[ii][jj][imass][icosth])
+              for ii in range(0,Nlambda) : 
+                  weightLam[ii] = float(0)
+                  if (Matrix2out[ii][imass][icosth] > 3) : print "too many bins? The corresponding on validation "+str(Matrix2out[ii][imass][icosth])
               #print weightvalidation
               #elif (cluster <13): weight = float(Matrix1[cluster-1][imass][icosth]/Matrix2high[imass][icosth]) # benchmarks
+           
            s.file = int(files)
            s.evt = int(iEv)
            s.mHH = float(Mtotgen)
            s.cosTheta = float(Costgen)
            s.wBox = float(weightvalidation)
+           s.wFlat = float(weightFlat)
                #for ii in range(0,nclu) : 
                #name = 'bench'+str(ii+1)
            s.bench1 = float(weightclu[0])
