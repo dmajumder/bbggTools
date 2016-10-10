@@ -73,18 +73,22 @@ process.load("flashgg.Taggers.flashggTags_cff")
 process.bbggtree.OutFileName = cms.untracked.string(outputFile)
 
 from HLTrigger.HLTfilters.hltHighLevel_cfi import hltHighLevel
-process.hltHighLevel= hltHighLevel.clone(HLTPaths = cms.vstring("HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass95_v*",
-								"HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_v*",
-								"HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_v*") )
+#### 2015 triggers
+#process.hltHighLevel= hltHighLevel.clone(HLTPaths = cms.vstring("HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass95_v*",
+#								"HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_v*",
+#								"HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_v*") )
+#### 2016 trigger
+process.hltHighLevel= hltHighLevel.clone(HLTPaths = cms.vstring("HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v*",
+								) )
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.load('RecoMET.METFilters.eeBadScFilter_cfi')
 process.eeBadScFilter.EERecHitSource = cms.InputTag("reducedEgamma","reducedEERecHits") # Saved MicroAOD Collection (data only)
 
 process.dataRequirements = cms.Sequence()
-if customize.processId == "Data":
-        process.dataRequirements += process.hltHighLevel
-        process.dataRequirements += process.eeBadScFilter
+
+process.dataRequirements += process.hltHighLevel
+process.dataRequirements += process.eeBadScFilter
 
 
 print bcolors.OKBLUE + "########################################################################" + bcolors.ENDC
@@ -110,7 +114,5 @@ if customize.doDoubleCountingMitigation is True:
 if customize.doDoubleCountingMitigation is False:
 	process.bbggtree.doDoubleCountingMitigation = cms.untracked.uint32(0)
 
-#process.p = cms.Path(process.bbggtree)
 
-#process.p = cms.Path(process.dataRequirements*flashggTags.flashggUnpackedJets*process.bbggtree)
-process.p = cms.Path(flashggTags.flashggUnpackedJets*process.bbggtree)
+process.p = cms.Path(process.dataRequirements*flashggTags.flashggUnpackedJets*process.bbggtree)
