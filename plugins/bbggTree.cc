@@ -159,7 +159,7 @@ private:
     unsigned int nPromptPhotons, doDoubleCountingMitigation, doPhotonCR, doJetRegression;
     std::vector<std::string> myTriggers;
     std::string bTagType, PhotonMVAEstimator;
-    unsigned int doSelection, DoMVAPhotonID;
+    unsigned int doSelection, DoMVAPhotonID, is2016;
   //std::string bRegFile;
   edm::FileInPath bRegFile;
 
@@ -251,6 +251,7 @@ inputTagJets_( iConfig.getParameter<std::vector<edm::InputTag> >( "inputTagJets"
     unsigned int def_doPhotonCR = 0;
     unsigned int def_doJetRegression = 0;
     unsigned int def_DoMVAPhotonID = 0;
+    unsigned int def_is2016 = 1;
     int def_jetSmear = 0;
     int def_jetScale = 0;
     std::string def_randomLabel = "";
@@ -319,6 +320,7 @@ inputTagJets_( iConfig.getParameter<std::vector<edm::InputTag> >( "inputTagJets"
     doDoubleCountingMitigation = iConfig.getUntrackedParameter<unsigned int>("doDoubleCountingMitigation", def_doDoubleCountingMitigation);
     doPhotonCR = iConfig.getUntrackedParameter<unsigned int>("doPhotonCR", def_doPhotonCR);
     doJetRegression = iConfig.getUntrackedParameter<unsigned int>("doJetRegression", def_doJetRegression);
+    is2016 = iConfig.getUntrackedParameter<unsigned int>("is2016", def_is2016);
     bTagType = iConfig.getUntrackedParameter<std::string>( "bTagType", def_bTagType );
     fileName = iConfig.getUntrackedParameter<std::string>( "OutFileName", def_fileName );
     genInfo_ = iConfig.getUntrackedParameter<edm::InputTag>( "genInfo", edm::InputTag("generator") );
@@ -534,7 +536,7 @@ void
     Handle<View<reco::GenParticle> > genParticles2;
 
     //Trigger
-    if(myTriggers.size() > 0){
+    if(myTriggers.size() > 0 && !is2016 ){
         Handle<edm::TriggerResults> trigResults;
         iEvent.getByToken(triggerToken_, trigResults);
         const edm::TriggerNames &names = iEvent.triggerNames(*trigResults);
@@ -626,7 +628,12 @@ void
     if(DEBUG) std::cout << "[bbggTree::analyze] About to do event selection! " << std::endl;
 
     //Trigger preselection on diphoton candidates:
-    vector<edm::Ptr<flashgg::DiPhotonCandidate>> PreSelDipho = tools_.DiPhoton76XPreselection( diphoVec, myTriggerResults);
+    vector<edm::Ptr<flashgg::DiPhotonCandidate>> PreSelDipho;
+    if(!is2016)
+        PreSelDipho = tools_.DiPhoton76XPreselection( diphoVec, myTriggerResults);
+    else
+        PreSelDipho = tools_.DiPhotonPreselection_2016( diphoVec );
+
     if(DEBUG) std::cout << "[bbggTree::analyze] Number of pre-selected diphtoons: "<< PreSelDipho.size() << std::endl;
     //If no diphoton passed presel, skip event
     if ( PreSelDipho.size() < 1 ) return;

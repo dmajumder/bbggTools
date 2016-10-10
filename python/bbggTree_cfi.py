@@ -68,6 +68,7 @@ bbggtree = cms.EDAnalyzer('bbggTree',
 	bRegFile=param._bRegFile,
 	jetSmear=param._jetSmear,
 	randomLabel=param._randomLabel,
-	jetScale=param._jetScale
+	jetScale=param._jetScale,
+        is2016=param._is2016
 #	doSelectionTree=param._doSelectionTree
 )

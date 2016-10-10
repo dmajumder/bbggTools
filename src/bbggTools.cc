@@ -15,6 +15,51 @@ using namespace std;
 
 bool DEBUG = 0;
 
+
+std::vector<edm::Ptr<flashgg::DiPhotonCandidate>>
+    bbggTools::DiPhotonPreselection_2016(vector<edm::Ptr<flashgg::DiPhotonCandidate>> diphoCol )
+{
+    std::vector<edm::Ptr<flashgg::DiPhotonCandidate>> selDiPhos;
+     
+    for ( unsigned int dp = 0; dp < diphoCol.size(); dp++)
+    {
+        edm::Ptr<flashgg::DiPhotonCandidate> dipho = diphoCol[dp];
+
+        bool isPreselected = 0;
+ 
+        if ( dipho->leadingPhoton()->full5x5_r9() > 0.8 
+             || dipho->leadingPhoton()->egChargedHadronIso() < 20 
+             || dipho->leadingPhoton()->egChargedHadronIso()/dipho->leadingPhoton()->pt() < 0.3)
+        {
+            if ( dipho->subLeadingPhoton()->full5x5_r9() > 0.8 
+                || dipho->subLeadingPhoton()->egChargedHadronIso() < 20 
+                || dipho->subLeadingPhoton()->egChargedHadronIso()/dipho->subLeadingPhoton()->pt() < 0.3 )
+            {
+                if ( dipho->leadingPhoton()->hadronicOverEm() < 0.08 && dipho->subLeadingPhoton()->hadronicOverEm() < 0.08 )
+                {
+                    if ( dipho->leadingPhoton()->pt() > 30 && dipho->subLeadingPhoton()->pt() > 20)
+                    {
+                        if ( fabs(dipho->leadingPhoton()->superCluster()->eta()) < 2.5 && fabs(dipho->subLeadingPhoton()->superCluster()->eta()) < 2.5 )
+                        {
+                            if( fabs(dipho->leadingPhoton()->superCluster()->eta()) < 1.4442 ||  fabs(dipho->leadingPhoton()->superCluster()->eta()) > 1.566 )
+                            {
+                                if( fabs(dipho->subLeadingPhoton()->superCluster()->eta()) < 1.4442 ||  fabs(dipho->subLeadingPhoton()->superCluster()->eta()) > 1.566 )
+                                {
+                                    isPreselected = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if(isPreselected) selDiPhos.push_back(dipho);
+    }
+
+    return selDiPhos;
+}
+
+
 std::vector<edm::Ptr<flashgg::DiPhotonCandidate>>
     bbggTools::DiPhoton76XPreselection(vector<edm::Ptr<flashgg::DiPhotonCandidate>> diphoCol, std::map<std::string, int> myTriggersResults)
 {

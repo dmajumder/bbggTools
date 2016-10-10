@@ -116,7 +116,7 @@ _MVAPhotonID				=	cms.untracked.vdouble(0.374, 0.336)
 #MVA user float
 _PhotonMVAEstimator			=	cms.untracked.string("PhotonMVAEstimatorRun2Spring15NonTrig25nsV2p1Values")
 
-_doJetRegression			=	cms.untracked.uint32(1)
+_doJetRegression			=	cms.untracked.uint32(0)
 
 
 _bRegFile      =  cms.untracked.FileInPath("flashgg/bbggTools/data/BRegression/BDTG_16plus2_jetGenJet_nu_7_6.weights.xml")
@@ -127,3 +127,4 @@ _randomLabel				=	cms.untracked.string("rnd_g_JER")
 
 _jetScale					=	cms.untracked.int32(0)
 
+_is2016					= cms.untracked.uint32(1)
