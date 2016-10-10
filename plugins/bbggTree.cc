@@ -113,6 +113,7 @@ private:
     vector<double> genWeights;
     float leadingJet_bDis, subleadingJet_bDis, jet1PtRes, jet1EtaRes, jet1PhiRes, jet2PtRes, jet2EtaRes, jet2PhiRes;
     float CosThetaStar, leadingPhotonIDMVA, subleadingPhotonIDMVA, DiJetDiPho_DR_2, DiJetDiPho_DR_1, PhoJetMinDr;
+    float CosThetaStar_CS, leadingPhotonR9full5x5, subleadingPhotonR9full5x5;
     std::map<std::string, int> myTriggerResults;
 
     double genTotalWeight;
@@ -490,6 +491,9 @@ void
     isSignal = 0;
     isPhotonCR = 0;
     CosThetaStar = -999;
+    CosThetaStar_CS = -999;
+    leadingPhotonR9full5x5 = -999;
+    subleadingPhotonR9full5x5 = -999;
     //    nvtx = 0;
 
     diphotonCandidate.SetPxPyPzE(0,0,0,0);// = diphoCand->p4();
@@ -793,6 +797,10 @@ void
     TVector3 HHBoostVector = HHforBoost.BoostVector();
     BoostedHgg.Boost( -HHBoostVector.x(), -HHBoostVector.y(), -HHBoostVector.z() );
     CosThetaStar = BoostedHgg.CosTheta();
+    TLorentzVector djc, dpc;
+    djc.SetPtEtaPhiE( dijetCandidate.pt(), dijetCandidate.eta(), dijetCandidate.phi(), dijetCandidate.energy());
+    dpc.SetPtEtaPhiE( diphotonCandidate.pt(), diphotonCandidate.eta(), diphotonCandidate.phi(), diphotonCandidate.energy());
+    CosThetaStar_CS = tools_.getCosThetaStar_CS(djc,dpc,6500); //Colin Sopper Frame CTS
 
 
     if(DEBUG) std::cout << "[bbggTree::analyze] After filling candidates" << std::endl;
@@ -815,6 +823,9 @@ void
 
     leadingPhotonIDMVA = diphoCand->leadingPhoton()->userFloat(PhotonMVAEstimator);
     subleadingPhotonIDMVA = diphoCand->subLeadingPhoton()->userFloat(PhotonMVAEstimator);
+
+    leadingPhotonR9full5x5 = diphoCand->leadingPhoton()->full5x5_r9();
+    subleadingPhotonR9full5x5 = diphoCand->subLeadingPhoton()->full5x5_r9();
 
     if(lpho_eta_abs < 1.44){
         lphoIDloose 	= tools_.isPhoID(diphoCand->leadingPhoton(), phoIDlooseEB);
@@ -891,12 +902,14 @@ bbggTree::beginJob()
     tree->Branch("leadingPhotonID", &leadingPhotonID);
     tree->Branch("leadingPhotonISO", &leadingPhotonISO);
     tree->Branch("leadingPhotonEVeto", &leadingPhotonEVeto, "leadingPhotonEVeto/I");
-    tree->Branch("leadingPhotonIDMVA", &leadingPhotonIDMVA, "leadingPhotonIDMVA/f");
+    tree->Branch("leadingPhotonIDMVA", &leadingPhotonIDMVA, "leadingPhotonIDMVA/F");
+    tree->Branch("leadingPhotonR9full5x5", &leadingPhotonR9full5x5, "leadingPhotonR9full5x5/F");
     tree->Branch("subleadingPhoton", &subleadingPhoton);
     tree->Branch("subleadingPhotonID", &subleadingPhotonID);
     tree->Branch("subleadingPhotonISO", &subleadingPhotonISO);
     tree->Branch("subleadingPhotonEVeto", &subleadingPhotonEVeto, "subleadingPhotonEVeto/I");
-    tree->Branch("subleadingPhotonIDMVA", &subleadingPhotonIDMVA, "subleadingPhotonIDMVA/f");
+    tree->Branch("subleadingPhotonIDMVA",     &subleadingPhotonIDMVA,     "subleadingPhotonIDMVA/F");
+    tree->Branch("subleadingPhotonR9full5x5", &subleadingPhotonR9full5x5, "subleadingPhotonR9full5x5/F");
     tree->Branch("diphotonCandidate", &diphotonCandidate);
     tree->Branch("nPromptInDiPhoton", &nPromptInDiPhoton, "nPromptInDiPhoton/I");
     tree->Branch("leadingJet", &leadingJet);
@@ -924,6 +937,7 @@ bbggTree::beginJob()
     tree->Branch("isSignal", &isSignal, "isSignal/I");
     tree->Branch("isPhotonCR", &isPhotonCR, "isPhotonCR/I");
     tree->Branch("CosThetaStar", &CosThetaStar, "CosThetaStar/F");
+    tree->Branch("CosThetaStar_CS", &CosThetaStar_CS, "CosThetaStar_CS/F");
     tree->Branch("TriggerResults", &myTriggerResults);
     tree->Branch("DiJetDiPho_DR_1", &DiJetDiPho_DR_1, "DiJetDiPho_DR_1/F");
     tree->Branch("DiJetDiPho_DR_2", &DiJetDiPho_DR_2, "DiJetDiPho_DR_2/F");
