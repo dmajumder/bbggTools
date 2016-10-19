@@ -9,18 +9,19 @@ process = cms.Process("bbggtree")
 process.load("flashgg.bbggTools.bbggTree_cfi")
 process.bbggtree.rho = cms.InputTag('fixedGridRhoAll')
 process.bbggtree.vertexes = cms.InputTag("offlineSlimmedPrimaryVertices")
-process.bbggtree.puInfo=cms.InputTag("slimmedAddPileupInfo")
+#process.bbggtree.puInfo=cms.InputTag("slimmedAddPileupInfo")
 process.bbggtree.lumiWeight = cms.double(1.0)
 process.bbggtree.intLumi = cms.double(1.0)
 process.bbggtree.puReWeight=cms.bool(False)
-process.bbggtree.puBins=cms.vdouble()
-process.bbggtree.dataPu=cms.vdouble()
-process.bbggtree.mcPu=cms.vdouble()
+#process.bbggtree.puBins=cms.vdouble()
+#process.bbggtree.dataPu=cms.vdouble()
+#process.bbggtree.mcPu=cms.vdouble()
 
 process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use
     fileNames = cms.untracked.vstring("test.root")
 )
+
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 2000 )
@@ -51,7 +52,6 @@ customize.register('nPromptPhotons',
 # call the customization
 customize(process)
 
-
 maxEvents = 5
 if customize.maxEvents:
         maxEvents = int(customize.maxEvents)
@@ -65,8 +65,6 @@ if customize.outputFile:
         outputFile = customize.outputFile
 
 print customize.inputFiles, customize.outputFile, customize.maxEvents, customize.doSelection, customize.doDoubleCountingMitigation, customize.nPromptPhotons
-
-
 
 #process.load("flashgg.bbggTools.bbggTree_cfi")
 process.load("flashgg.Taggers.flashggTags_cff")
@@ -82,7 +80,12 @@ process.hltHighLevel= hltHighLevel.clone(HLTPaths = cms.vstring("HLT_Diphoton30_
 								) )
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
+#############   Geometry  ###############
+process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
+process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 process.load('RecoMET.METFilters.eeBadScFilter_cfi')
+process.load("Configuration.Geometry.GeometryECALHCAL_cff")
 process.eeBadScFilter.EERecHitSource = cms.InputTag("reducedEgamma","reducedEERecHits") # Saved MicroAOD Collection (data only)
 
 process.dataRequirements = cms.Sequence()

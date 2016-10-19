@@ -30,8 +30,10 @@ hadd output_GluGluToBulkGravitonToHHTo2B2G_M-400_narrow_13TeV-madgraph.root ../o
 hadd output_GluGluToBulkGravitonToHHTo2B2G_M-450_narrow_13TeV-madgraph.root ../output_GluGluToBulkGravitonToHHTo2B2G_M-450_narrow_13TeV-madgraph_*
 hadd output_GluGluToBulkGravitonToHHTo2B2G_M-500_narrow_13TeV-madgraph.root ../output_GluGluToBulkGravitonToHHTo2B2G_M-500_narrow_13TeV-madgraph_*
 hadd output_GluGluToBulkGravitonToHHTo2B2G_M-550_narrow_13TeV-madgraph.root ../output_GluGluToBulkGravitonToHHTo2B2G_M-550_narrow_13TeV-madgraph_*
+hadd output_GluGluToBulkGravitonToHHTo2B2G_M-600_narrow_13TeV-madgraph.root ../output_GluGluToBulkGravitonToHHTo2B2G_M-650_narrow_13TeV-madgraph_*
 hadd output_GluGluToBulkGravitonToHHTo2B2G_M-650_narrow_13TeV-madgraph.root ../output_GluGluToBulkGravitonToHHTo2B2G_M-650_narrow_13TeV-madgraph_*
 hadd output_GluGluToBulkGravitonToHHTo2B2G_M-700_narrow_13TeV-madgraph.root ../output_GluGluToBulkGravitonToHHTo2B2G_M-700_narrow_13TeV-madgraph_*
+hadd output_GluGluToBulkGravitonToHHTo2B2G_M-750_narrow_13TeV-madgraph.root ../output_GluGluToBulkGravitonToHHTo2B2G_M-700_narrow_13TeV-madgraph_*
 hadd output_GluGluToBulkGravitonToHHTo2B2G_M-800_narrow_13TeV-madgraph.root ../output_GluGluToBulkGravitonToHHTo2B2G_M-800_narrow_13TeV-madgraph_*
 hadd output_GluGluToBulkGravitonToHHTo2B2G_M-900_narrow_13TeV-madgraph.root ../output_GluGluToBulkGravitonToHHTo2B2G_M-900_narrow_13TeV-madgraph_*
 
@@ -63,6 +65,7 @@ hadd output_GluGluToRadionToHHTo2B2G_M-350_narrow_13TeV-madgraph.root ../output_
 hadd output_GluGluToRadionToHHTo2B2G_M-400_narrow_13TeV-madgraph.root ../output_GluGluToRadionToHHTo2B2G_M-400_narrow_13TeV-madgraph_*
 hadd output_GluGluToRadionToHHTo2B2G_M-450_narrow_13TeV-madgraph.root ../output_GluGluToRadionToHHTo2B2G_M-450_narrow_13TeV-madgraph_*
 hadd output_GluGluToRadionToHHTo2B2G_M-500_narrow_13TeV-madgraph.root ../output_GluGluToRadionToHHTo2B2G_M-500_narrow_13TeV-madgraph_*
+hadd output_GluGluToRadionToHHTo2B2G_M-550_narrow_13TeV-madgraph.root ../output_GluGluToRadionToHHTo2B2G_M-550_narrow_13TeV-madgraph_*
 hadd output_GluGluToRadionToHHTo2B2G_M-600_narrow_13TeV-madgraph.root ../output_GluGluToRadionToHHTo2B2G_M-600_narrow_13TeV-madgraph_*
 hadd output_GluGluToRadionToHHTo2B2G_M-650_narrow_13TeV-madgraph.root ../output_GluGluToRadionToHHTo2B2G_M-650_narrow_13TeV-madgraph_*
 hadd output_GluGluToRadionToHHTo2B2G_M-700_narrow_13TeV-madgraph.root ../output_GluGluToRadionToHHTo2B2G_M-700_narrow_13TeV-madgraph_*
