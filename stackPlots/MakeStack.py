@@ -7,6 +7,7 @@ import resource
 
 #SetMemoryPolicy( kMemoryStrict )
 
+gStyle.SetOptStat(0)
 dummyTFile = TFile("dummy.root", "RECREATE")
 
 if not os.path.exists(dirName):
@@ -51,10 +52,14 @@ for plot in plots:
     thisStack = myStack('test'+plot[0], varName, varName, dirName, lumi)
     if hideData == True:
         thisStack.hideData()
+    if hideStat == True:
+        thisStack.hideStat()
     if isPhoCR == 1:
         thisStack.makePhoCR()
     if doJetCR == 1:
         thisStack.makeJetCR()
+    if doShape == True:
+        thisStack.doShape()
 
     thisStack.setYear(year)
 
@@ -63,6 +68,10 @@ for plot in plots:
     backgroundHists = []
     for background in datasets["background"]:
         if not addbbH and 'bbH' in background: continue
+	if not addHiggs and 'VH' in background: continue
+	if not addHiggs and 'ttH' in background: continue
+	if not addHiggs and 'ggH' in background: continue
+	if not addHiggs and 'VBF' in background: continue
         if not dyjets and "DYJ" in background: continue
         if "QCD" in background: continue
         print background
@@ -75,6 +84,7 @@ for plot in plots:
         for i,fi in enumerate(datasets["background"][background]["files"]):
             print fi
             thisTreeLoc = fi["file"]
+	    skipEmptyFile = False
             if thisTreeLoc not in Trees:
                 Trees[thisTreeLoc] = TChain("bbggSelectionTree")
                 Trees[thisTreeLoc].AddFile(bkgLocation+thisTreeLoc)
@@ -85,9 +95,18 @@ for plot in plots:
             if "QCD" in thisTreeLoc:
                 thisWeightedCut = TCut(weightedcut.replace("isSignal == 1", "isSignal == 0"))
             Trees[thisTreeLoc].Draw(plot[1]+">>"+locName, thisWeightedCut)
-            locHist.Scale(MCSF*lumi*fi["xsec"]*fi["sfactor"]/fi["weight"])
-            thisHist.Add(locHist)
-            Histos.append(locHist)
+
+	    if not doShape:
+		    locHist.Scale(MCSF*lumi*fi["xsec"]*fi["sfactor"]/fi["weight"])
+	    else:
+		    locHist.Scale(1./locHist.Integral())
+		    print "lochist"
+		    print locHist.Integral()
+	    if not skipEmptyFile: #fixme! needs to be implemented
+		    thisHist.Add(locHist)
+		    Histos.append(locHist)
+
+
 #            thisFile = TFile(plot[0]+"_"+fi["file"], "RECREATE")
 #            thisFile.cd()
 #            thisHist.Write()
@@ -95,9 +114,16 @@ for plot in plots:
 #            dummyTFile.cd()
             
         backgroundHists.append([thisHist, datasets["background"][background]["legend"], datasets["background"][background]["position"]])
-        del thisHist
+
     OrderedBackgrounds = sorted(backgroundHists, key=lambda x: x[2], reverse=True)
     print OrderedBackgrounds
+    if doShape:
+	    for background in OrderedBackgrounds: 
+		    background[0].Scale(1./background[0].Integral())
+		    background[0].SetFillStyle(3004)
+		    background[0].SetLineWidth(2)
+		    thisStack.addBackground(background[0], background[1], 1.)
+    del thisHist
     for background in OrderedBackgrounds: thisStack.addHist(background[0], background[1], background[2])
     
     for signal in datasets["signal"]:
@@ -116,9 +142,16 @@ for plot in plots:
             Trees[thisTreeLoc].AddFile(signalLocation+thisTreeLoc)
             SetOwnership( Trees[thisTreeLoc], True )
         Trees[thisTreeLoc].Draw(plot[1]+">>"+thisName, cut_signal)
-        thisHist.Scale(lumi*signal["xsec"]*signal["sfactor"]/signal["weight"])
+	if not doShape:
+		thisHist.Scale(lumi*signal["xsec"]*signal["sfactor"]/signal["weight"])
+	else:
+		thisHist.Scale(1./thisHist.Integral())
         Histos.append(thisHist)
-        thisStack.addSignal(thisHist, signal["legend"], lumi*signal["xsec"]*signal["sfactor"]/signal["weight"])
+	if not doShape:
+		thisStack.addSignal(thisHist, signal["legend"], lumi*signal["xsec"]*signal["sfactor"]/signal["weight"])
+	else:
+		thisStack.addSignal(thisHist, signal["legend"], 1.)
+
         del thisHist
     
     

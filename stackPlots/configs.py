@@ -1,3 +1,4 @@
+
 ##################################################
 ##################################################
 ## Configuration parameters to run MakeStack.py ##
@@ -5,13 +6,14 @@
 ##################################################
 
 doBlind = True
+doShape = True
 doSignalRegion = True
 doJetCR = False
 
 isPhoCR = False
-addHiggs = True
-hideData = False
-addbbH = True
+addHiggs = False
+hideData = True
+addbbH = False
 dyjets = False
 
 #do pile up reweighting
@@ -20,6 +22,8 @@ doPUweight = True
 year = ""
 
 doSignal = True
+
+hideStat = True
 
 #btagging working poing
 # 0.46 - loose
@@ -39,16 +43,15 @@ dr = "sqrt( (leadingPhoton.Eta() - subleadingPhoton.Eta())*(leadingPhoton.Eta() 
 
 #plots will be saved in dirName
 prefix = ""
-dirSuffix = "March10_36ifb_Moriond_SR_Blind"
-dirPrefix = "/afs/cern.ch/user/r/rateixei/www/HHBBGG/ControlPlots/"
+dirSuffix = "test_norm"
+dirPrefix = "/afs/cern.ch/user/m/micheli/www/plots/HHBBGG/"
 dirName = dirPrefix + dirSuffix
 
 #Location of root files for each invidivual samples. Name of the root files is defined in datasets/datasets(76).json
-higgsLocation = "/afs/cern.ch/work/r/rateixei/work/DiHiggs/bbggTools_flashgg_tag-Moriond17-v8/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/test/RunJobs/EGM_Background_ReMiniAOD/Hadd/" 
-bkgLocation = "/afs/cern.ch/work/r/rateixei/work/DiHiggs/bbggTools_flashgg_tag-Moriond17-v8/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/test/RunJobs/EGM_Background_ReMiniAOD/Hadd/" 
-signalLocation = "/afs/cern.ch/work/r/rateixei/work/DiHiggs/bbggTools_flashgg_tag-Moriond17-v8/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/test/RunJobs/EGM_Signal_ReMiniAOD/Hadd/"
-dataLocation = "/afs/cern.ch/work/r/rateixei/work/DiHiggs/bbggTools_flashgg_tag-Moriond17-v8/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/test/RunJobs/EGM_Data_ReMiniAOD/Hadd/"
-
+higgsoLocation="/afs/cern.ch/user/m/micheli/scratch1/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/test/RunJobs/Background/"
+bkgLocation="/afs/cern.ch/user/m/micheli/scratch1/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/test/RunJobs/Background/"
+dataLocation="/afs/cern.ch/user/m/micheli/scratch1/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/test/RunJobs/HHbbggSignal/"
+signalLocation="/afs/cern.ch/user/m/micheli/scratch1/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/test/RunJobs/HHbbggSignal/"
 
 #plots to be made
 plots = []
