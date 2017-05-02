@@ -99,8 +99,8 @@ for plot in plots:
 	    if not doShape:
 		    locHist.Scale(MCSF*lumi*fi["xsec"]*fi["sfactor"]/fi["weight"])
 	    else:
-		    locHist.Scale(1./locHist.Integral())
-		    print "lochist"
+		    if not locHist.Integral() == 0:
+			    locHist.Scale(1./locHist.Integral())
 		    print locHist.Integral()
 	    if not skipEmptyFile: #fixme! needs to be implemented
 		    thisHist.Add(locHist)

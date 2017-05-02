@@ -395,6 +395,14 @@ def SaveShapes(legend, fileName, varName, dirName, bkg, signals, ControlRegion, 
 
 	cs = TCanvas("cs", "cs", 800, 600)
 	isFirst = False
+	maximum = 0
+	for h in bkg:
+		if h[0].GetMaximum() > maximum:
+			maximum = h[0].GetMaximum()
+	for h in signals:
+		if h[0].GetMaximum() > maximum:
+			maximum = h[0].GetMaximum()
+
 	for h in bkg:
 		if isFirst == False:
 			isFirst = True
@@ -416,8 +424,7 @@ def SaveShapes(legend, fileName, varName, dirName, bkg, signals, ControlRegion, 
 		h[0].GetXaxis().SetNdivisions(515)
 		h[0].GetXaxis().SetTitle(varName)
 		h[0].GetYaxis().SetTitleOffset(1.25)
-		GenMax = 1.1
-		h[0].SetMaximum(GenMax)
+		h[0].SetMaximum(maximum*1.15)
 		h[0].SetTitle("")
 		h[0].SetMinimum(0.001)	
 	tlatex = TLatex()
