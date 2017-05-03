@@ -10,7 +10,7 @@ root_sig.AddFile('/afs/cern.ch/user/m/micheli/scratch1/CMSSW_8_0_26_patch1/src/f
 print 'Signal events:',root_sig.GetEntries()
 
 # Useful output information will be stored in a new root file:
-outfileName = "StandardVariables_DiphoJets_lowMass.root"
+outfileName = "MoreVariables_DiphoJets_highMass.root"
 f_out = ROOT.TFile(outfileName,"RECREATE")
 
 # Create the TMVA factory
@@ -18,19 +18,33 @@ ROOT.TMVA.Tools.Instance()
 factory = ROOT.TMVA.Factory("TMVAClassification", f_out,"AnalysisType=Classification")
 
 # Add the six variables to the TMVA factory as floats
+dr_leadPhoLeadJet ="sqrt( (leadingPhoton.Eta() - leadingJet.Eta())*(leadingPhoton.Eta() - leadingJet.Eta()) + TVector2::Phi_mpi_pi(leadingPhoton.Phi() - leadingJet.Phi())*TVector2::Phi_mpi_pi(leadingPhoton.Phi() - leadingJet.Phi()) )"
+dr_leadPhoSubleadJet ="sqrt( (leadingPhoton.Eta() - subleadingJet.Eta())*(leadingPhoton.Eta() - subleadingJet.Eta()) + TVector2::Phi_mpi_pi(leadingPhoton.Phi() - subleadingJet.Phi())*TVector2::Phi_mpi_pi(leadingPhoton.Phi() - subleadingJet.Phi()) )"
+dr_subleadPhoLeadJet ="sqrt( (subleadingPhoton.Eta() - leadingJet.Eta())*(subleadingPhoton.Eta() - leadingJet.Eta()) + TVector2::Phi_mpi_pi(subleadingPhoton.Phi() - leadingJet.Phi())*TVector2::Phi_mpi_pi(subleadingPhoton.Phi() - leadingJet.Phi()) )"
+dr_subleadPhoSubleadJet ="sqrt( (subleadingPhoton.Eta() - subleadingJet.Eta())*(subleadingPhoton.Eta() - subleadingJet.Eta()) + TVector2::Phi_mpi_pi(subleadingPhoton.Phi() - subleadingJet.Phi())*TVector2::Phi_mpi_pi(subleadingPhoton.Phi() - subleadingJet.Phi()) )"
 mvaVars = [
 ##Main: 
 'leadingJet_bDis',
 'subleadingJet_bDis',
 'diphotonCandidate.Pt()/(diHiggsCandidate.M())',
-##Remove:
-#          'leadingJet.Pt()/dijetCandidate.M()',
-#	   'subleadingJet.Pt()/dijetCandidate.M()',
 ##Test:
           'fabs(CosThetaStar_CS)',
            'fabs(CosTheta_bb)',
            'fabs(CosTheta_gg)',
-           'dijetCandidate.Pt()/(diHiggsCandidate.M())'
+           'dijetCandidate.Pt()/(diHiggsCandidate.M())',
+##########new vars:
+    'diHiggsCandidate.Pt()/(diHiggsCandidate.M())',
+#dr photons:
+    'sqrt( (leadingPhoton.Eta() - subleadingPhoton.Eta())*(leadingPhoton.Eta() - subleadingPhoton.Eta()) + TVector2::Phi_mpi_pi(leadingPhoton.Phi() - subleadingPhoton.Phi())*TVector2::Phi_mpi_pi(leadingPhoton.Phi() - subleadingPhoton.Phi()) )',
+#dr jets:
+    'sqrt( (leadingJet.Eta() - subleadingJet.Eta())*(leadingJet.Eta() - subleadingJet.Eta()) + TVector2::Phi_mpi_pi(leadingJet.Phi() - subleadingJet.Phi())*TVector2::Phi_mpi_pi(leadingJet.Phi() - subleadingJet.Phi()) )',
+#dphi (hh):
+    'TVector2::Phi_mpi_pi(diphotonCandidate.Phi()-dijetCandidate.Phi())',
+#dr (gamma-jet):
+    dr_leadPhoLeadJet,
+dr_leadPhoSubleadJet,
+dr_subleadPhoLeadJet,
+dr_subleadPhoSubleadJet
            ]
 
 for x in mvaVars:
@@ -41,8 +55,8 @@ factory.AddSignalTree(root_sig)
 factory.AddBackgroundTree(root_bkg)
 
 # cuts defining the signal and background sample
-sigCut = ROOT.TCut("(isSignal == 1 && (diHiggsCandidate.M() - dijetCandidate.M() -diphotonCandidate.M() + 250) < 400) && leadingJet_bDis > -1 && subleadingJet_bDis > -1")
-bkgCut = ROOT.TCut("(isSignal == 0 && (diHiggsCandidate.M() - dijetCandidate.M() -diphotonCandidate.M() + 250) < 400) && leadingJet_bDis > -1 && subleadingJet_bDis > -1")
+sigCut = ROOT.TCut("(isSignal == 1 && (diHiggsCandidate.M() - dijetCandidate.M() -diphotonCandidate.M() + 250) > 400) && leadingJet_bDis > -1 && subleadingJet_bDis > -1")
+bkgCut = ROOT.TCut("(isSignal == 0 && (diHiggsCandidate.M() - dijetCandidate.M() -diphotonCandidate.M() + 250) > 400) && leadingJet_bDis > -1 && subleadingJet_bDis > -1")
 #sigCut = ROOT.TCut("(isSignal == 1 && (diHiggsCandidate.M() - dijetCandidate.M() + 125) > 350) ")
 #bkgCut = ROOT.TCut("(isSignal == 0 && (diHiggsCandidate.M() - dijetCandidate.M() + 125) > 350) ")
 
