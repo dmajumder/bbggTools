@@ -45,8 +45,9 @@ dr_leadPhoLeadJet ="sqrt( (leadingPhoton.Eta() - leadingJet.Eta())*(leadingPhoto
 dr_leadPhoSubleadJet ="sqrt( (leadingPhoton.Eta() - subleadingJet.Eta())*(leadingPhoton.Eta() - subleadingJet.Eta()) + TVector2::Phi_mpi_pi(leadingPhoton.Phi() - subleadingJet.Phi())*TVector2::Phi_mpi_pi(leadingPhoton.Phi() - subleadingJet.Phi()) )"
 dr_subleadPhoLeadJet ="sqrt( (subleadingPhoton.Eta() - leadingJet.Eta())*(subleadingPhoton.Eta() - leadingJet.Eta()) + TVector2::Phi_mpi_pi(subleadingPhoton.Phi() - leadingJet.Phi())*TVector2::Phi_mpi_pi(subleadingPhoton.Phi() - leadingJet.Phi()) )"
 dr_subleadPhoSubleadJet ="sqrt( (subleadingPhoton.Eta() - subleadingJet.Eta())*(subleadingPhoton.Eta() - subleadingJet.Eta()) + TVector2::Phi_mpi_pi(subleadingPhoton.Phi() - subleadingJet.Phi())*TVector2::Phi_mpi_pi(subleadingPhoton.Phi() - subleadingJet.Phi()) )"
-
-
+dphi_hh="TVector2::Phi_mpi_pi(diphotonCandidate.Phi()-dijetCandidate.Phi())"
+dr_hh="sqrt( (diphotonCandidate.Eta() - dijetCandidate.Eta())*(diphotonCandidate.Eta() - dijetCandidate.Eta()) + TVector2::Phi_mpi_pi(sublea\
+dingPhoton.Phi() - dijetCandidate.Phi())*TVector2::Phi_mpi_pi(diphotonCandidate.Phi() - dijetCandidate.Phi()) )"
 
 #plots will be saved in dirName
 prefix = ""
@@ -62,7 +63,7 @@ signalLocation="/afs/cern.ch/user/m/micheli/scratch1/CMSSW_8_0_26_patch1/src/fla
 
 #plots to be made
 plots = []
-
+'''
 plots.append(["HHTagger", "HHTagger", "Categorization MVA", 50, -1, 1])
 plots.append(["HHTagger_LM", "HHTagger_LM", "Categorization MVA (Low Mass Training)", 50, -1, 1])
 plots.append(["HHTagger_HM", "HHTagger_HM", "Categorization MVA (High Mass Training)", 50, -1, 1])
@@ -117,6 +118,14 @@ plots.append(["dr_leadPhoLeadJet", dr_leadPhoLeadJet, "#DeltaR (#gamma_{lead} je
 plots.append(["dr_leadPhoSubleadJet", dr_leadPhoSubleadJet, "#DeltaR (#gamma_{lead} jet_{sublead})", nbin, 0, 8])
 plots.append(["dr_subleadPhoLeadJet", dr_subleadPhoLeadJet, "#DeltaR (#gamma_{sublead} jet_{lead})", nbin, 0, 8])
 plots.append(["dr_subleadPhoSubeadJet", dr_subleadPhoSubleadJet, "#DeltaR (#gamma_{sublead} jet_{sublead})", nbin, 0, 8])
+
+plots.append(["dphi_hh", dphi_hh, "#Delta#Phi (hh)", nbin, 0, 8])
+plots.append(["diPhoton_pt_overM", "diphotonCandidate.Pt()/diHiggsCandidate.M()", "p_{T}(#gamma#gamma)/M_{jj#gamma#gamma}", nbin, 0, 1] )
+plots.append(["diJet_pt_overM", "dijetCandidate.Pt()/diHiggsCandidate.M()", "p_{T}(jj)/M_{jj#gamma#gamma}", nbin, 0, 1] )
+plots.append(["leadingJet_btag", "leadingJet_bDis", "b-tag leading jet", nbin, 0, 1])
+plots.append(["subleadingJet_btag", "subleadingJet_bDis", "b-tag subleading jet", nbin, 0, 1])
+'''
+plots.append(["dr_hh", dr_hh, "#DeltaR (hh)", nbin, 0, 8])
 
 #cuts to be used to make plots
 Cut = " isSignal && diphotonCandidate.M() > 100 && diphotonCandidate.M() < 180"
