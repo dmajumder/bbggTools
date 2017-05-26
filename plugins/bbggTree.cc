@@ -68,6 +68,10 @@ Implementation:
 #include "flashgg/bbggTools/interface/bbggNonResMVA.h"
 #include "flashgg/bbggTools/interface/NonResWeights.h"
 
+
+//needed for sigmaMOverM
+#include "flashgg/Taggers/interface/FunctionHelpers.h"
+
 //
 // class declaration
 //
@@ -133,6 +137,7 @@ private:
     float leadingJet_bDis, subleadingJet_bDis, jet1PtRes, jet1EtaRes, jet1PhiRes, jet2PtRes, jet2EtaRes, jet2PhiRes;
     float leadingJet_CSVv2, leadingJet_cMVA, subleadingJet_CSVv2, subleadingJet_cMVA;
     float leadingPhotonIDMVA, subleadingPhotonIDMVA, DiJetDiPho_DR, PhoJetMinDr;
+    float leadingPhotonSigOverE, subleadingPhotonSigOverE, sigmaMOverM, sigmaMOverMDecorr;
     float CosThetaStar, CosThetaStar_CS, CosTheta_bb, CosTheta_gg, CosTheta_bbgg, CosTheta_ggbb, Phi0, Phi1;
     std::map<std::string, int> myTriggerResults;
     float leadingPhotonR9full5x5, subleadingPhotonR9full5x5, customLeadingPhotonMVA, customSubLeadingPhotonMVA;
@@ -199,6 +204,16 @@ private:
     int jetScale;
     std::string randomLabel;
     edm::FileInPath resFile, sfFile, scaleFile;
+  
+  //sigmaMoverM
+  unsigned int  doDecorr;
+  unsigned int  def_doDecorr;
+  edm::FileInPath sigmaMdecorrFile;
+  edm::FileInPath def_sigmaMdecorrFile;
+  DecorrTransform* transfEBEB_;
+  DecorrTransform* transfNotEBEB_;
+  TH2D* h_decorrEBEB_;
+  TH2D* h_decorrNotEBEB_;
 
 
   Bool_t getNonResGenInfo;
@@ -312,6 +327,10 @@ inputTagJets_( iConfig.getParameter<std::vector<edm::InputTag> >( "inputTagJets"
     def_bRegFileLeading = edm::FileInPath("flashgg/bbggTools/data/BRegression/2016/BDTG_16plus3_jetGenJet_nu_80X_leading_9_13.weights.xml");
     def_bRegFileSubLeading = edm::FileInPath("flashgg/bbggTools/data/BRegression/2016/BDTG_16plus3_jetGenJet_nu_80X_trailing_9_13.weights.xml");
 
+    //sigmaMoverM
+    def_doDecorr=0;
+    def_sigmaMdecorrFile = edm::FileInPath("flashgg/Taggers/data/diphoMVA_sigmaMoMdecorr_split_Mgg40_180.root");
+
     //Get photon ID thresholds from config file
     phoIDlooseEB = iConfig.getUntrackedParameter<std::vector<double > >("phoIDlooseEB");
     phoIDlooseEE = iConfig.getUntrackedParameter<std::vector<double > >("phoIDlooseEE");
@@ -386,6 +405,10 @@ inputTagJets_( iConfig.getParameter<std::vector<edm::InputTag> >( "inputTagJets"
 
 
     fileName = iConfig.getUntrackedParameter<std::string>( "OutFileName", def_fileName );
+
+    //sigmaMOverM
+    doDecorr = iConfig.getUntrackedParameter<unsigned int>("doSigmaMdecorr", def_doDecorr);
+    sigmaMdecorrFile = iConfig.getUntrackedParameter<edm::FileInPath>("sigmaMdecorrFile", def_sigmaMdecorrFile); 
 
     addNonResMVA = iConfig.getUntrackedParameter<unsigned int>("addNonResMVA", def_addNonResMVA);
     NonResMVAWeights_LowMass = iConfig.getUntrackedParameter<edm::FileInPath>("NonResMVAWeights_LowMass", def_NonResMVAWeights_LowMass);
@@ -514,6 +537,19 @@ inputTagJets_( iConfig.getParameter<std::vector<edm::InputTag> >( "inputTagJets"
     if(addNonResMVA) {
         nonresMVA_.SetupNonResMVA( NonResMVAWeights_LowMass.fullPath().data(), NonResMVAWeights_HighMass.fullPath().data(), NonResMVAVars);
         resMVA_.SetupNonResMVA( ResMVAWeights_LowMass.fullPath().data(), ResMVAWeights_HighMass.fullPath().data(), NonResMVAVars);
+    }
+
+    if (doDecorr){
+      TFile* f_decorr = new TFile((sigmaMdecorrFile.fullPath()).c_str(), "READ");
+      h_decorrEBEB_ = (TH2D*)f_decorr->Get("hist_sigmaM_M_EBEB"); 
+      h_decorrNotEBEB_ = (TH2D*)f_decorr->Get("hist_sigmaM_M_notEBEB");
+      if(h_decorrEBEB_ && h_decorrNotEBEB_){
+	transfEBEB_ = new DecorrTransform(h_decorrEBEB_ , 125., 1, 0);
+	transfNotEBEB_ = new DecorrTransform(h_decorrNotEBEB_ , 125., 1, 0);
+      }
+      else {
+	throw cms::Exception( "Configuration" ) << "The file "<<sigmaMdecorrFile.fullPath()<<" provided for sigmaM/M decorrelation does not contain the expected histograms."<<std::endl;
+      }
     }
 
     if (getNonResGenInfo){
@@ -1026,7 +1062,10 @@ void
     h_hggid->Fill(diphoCand.leadingPhoton()->phoIdMvaDWrtVtx( diphoCand.vtx() ));
     customSubLeadingPhotonMVA = diphoCand.subLeadingPhoton()->phoIdMvaDWrtVtx( diphoCand.vtx() );
     leadingPhotonIDMVA = diphoCand.leadingPhoton()->userFloat(PhotonMVAEstimator);
+    leadingPhotonSigOverE = diphoCand.leadingPhoton()->sigEOverE();
+    subleadingPhotonSigOverE = diphoCand.subLeadingPhoton()->sigEOverE();
     subleadingPhotonIDMVA = diphoCand.subLeadingPhoton()->userFloat(PhotonMVAEstimator);
+    sigmaMOverM = 0.5 * TMath::Sqrt(leadingPhotonSigOverE *leadingPhotonSigOverE + subleadingPhotonSigOverE * subleadingPhotonSigOverE );
     if(DEBUG) std::cout << "customLeadingPhotonMVA: " << diphoCand.leadingPhoton()->phoIdMvaDWrtVtx( diphoCand.vtx() ) << std::endl;
     if(DEBUG) std::cout << "leadingPhotonIDMVA: " << diphoCand.leadingPhoton()->userFloat(PhotonMVAEstimator) << std::endl;
 
@@ -1051,6 +1090,28 @@ void
     }
 
     if(DEBUG) std::cout << "[bbggTree::analyze] After filling candidates" << std::endl;
+
+    //sigmaMOverM
+    if(doDecorr){
+      //                std::cout<<"sigmaMdecorrFile is set, so we evaluate the transf"<<std::endl;
+      double mass_sigma[2]={0.,0.};
+      double dummy[1]={0.};
+      mass_sigma[0]=diphotonCandidate.M();
+      mass_sigma[1]=sigmaMOverM;
+                
+      //splitting EBEB and !EBEB, using cuts as in preselection
+      if(abs(diphoCand.leadingPhoton()->superCluster()->eta())<1.4442 && abs(diphoCand.subLeadingPhoton()->superCluster()->eta())<1.4442){
+	sigmaMOverMDecorr = (*transfEBEB_)(mass_sigma,dummy);
+      }
+      else{
+	sigmaMOverMDecorr = (*transfNotEBEB_)(mass_sigma,dummy);
+      }
+      //                sigmarv_decorr_ = (*transf_)(mass_sigma,dummy);
+      //                std::cout<<"transf evaluated, sigmarv_decorr = "<<sigmarv_decorr_<<std::endl;
+      //                delete x;
+      //                delete p;
+    }
+
 
 /*
     int lphoIDloose = 0;
@@ -1160,10 +1221,14 @@ bbggTree::beginJob()
     tree->Branch("subleadingPhotonISO", &subleadingPhotonISO);
     tree->Branch("subleadingPhotonEVeto", &subleadingPhotonEVeto, "subleadingPhotonEVeto/I");
     tree->Branch("subleadingPhotonIDMVA", &subleadingPhotonIDMVA, "subleadingPhotonIDMVA/F");
-    tree->Branch("customSubLeadingPhotonMVA", &customSubLeadingPhotonMVA, "customSubLeadingPhotonMVA/F");
+    tree->Branch("customSubLeadingPhotonIDMVA", &customSubLeadingPhotonMVA, "customSubLeadingPhotonIDMVA/F");
     tree->Branch("subleadingPhotonR9full5x5", &subleadingPhotonR9full5x5, "subleadingPhotonR9full5x5/F");
     tree->Branch("subLeadingPhotonHasGain1", &subLeadingPhotonHasGain1, "subLeadingPhotonHasGain1/I");
     tree->Branch("subLeadingPhotonHasGain6", &subLeadingPhotonHasGain6, "subLeadingPhotonHasGain6/I");
+    tree->Branch("leadingPhotonSigOverE", &leadingPhotonSigOverE, "leadingPhotonSigOverE/F");
+    tree->Branch("subleadingPhotonSigOverE", &subleadingPhotonSigOverE, "subleadingPhotonSigOverE/F");
+    tree->Branch("sigmaMOverM", &sigmaMOverM, "sigmaMOverM/F");
+    tree->Branch("sigmaMOverMDecorr", &sigmaMOverMDecorr, "sigmaMOverMDecorr/F");
     tree->Branch("diphotonCandidate", &diphotonCandidate);
     tree->Branch("nPromptInDiPhoton", &nPromptInDiPhoton, "nPromptInDiPhoton/I");
     tree->Branch("leadingJet", &leadingJet);

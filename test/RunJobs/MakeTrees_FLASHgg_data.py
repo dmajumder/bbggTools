@@ -114,6 +114,9 @@ if customize.doDoubleCountingMitigation is True:
 if customize.doDoubleCountingMitigation is False:
 	process.bbggtree.doDoubleCountingMitigation = cms.untracked.uint32(0)
 
+process.bbggtree.doSigmaMdecorr = 1
+process.bbggtree.sigmaMdecorrFile = cms.FileInPath("flashgg/Taggers/data/diphoMVA_sigmaMoMdecorr_split_Mgg40_180.root")
+
 import flashgg.Taggers.flashggUpdatedIdMVADiPhotons_cfi as flashggPhotonMVA
 #flashggPhotonMVA.flashggUpdatedIdMVADiPhotons.reRunRegression = cms.bool(False)
 process.load("flashgg.Taggers.flashggUpdatedIdMVADiPhotons_cfi")

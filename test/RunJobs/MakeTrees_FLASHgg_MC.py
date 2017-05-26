@@ -12,7 +12,8 @@ process.bbggtree.puReWeight=cms.bool(True)
 process.bbggtree.puBins=cms.vdouble()
 process.bbggtree.dataPu=cms.vdouble()
 process.bbggtree.mcPu=cms.vdouble()
-
+process.bbggtree.doSigmaMdecorr = cms.bool(True),
+process.bbggtree.sigmaMdecorrFile = cms.FileInPath("flashgg/Taggers/data/diphoMVA_sigmaMoMdecorr_split_Mgg40_180.root"),
 print "I'M HERE 1"
 
 process.source = cms.Source("PoolSource",
@@ -56,6 +57,7 @@ customize.register('bench',
 				VarParsing.VarParsing.multiplicity.singleton,
 				VarParsing.VarParsing.varType.int,
 				"Benchmark number for Non-Res weight. SHould be in range 1-12")
+
 
 
 # call the customization
@@ -112,6 +114,10 @@ if customize.doDoubleCountingMitigation is True:
 	print "Number of prompt photons in DiPhotonCandidate:",customize.nPromptPhotons
 if customize.doDoubleCountingMitigation is False:
 	process.bbggtree.doDoubleCountingMitigation = cms.untracked.uint32(0)
+
+process.bbggtree.doSigmaMdecorr = 1
+process.bbggtree.sigmaMdecorrFile = cms.FileInPath("flashgg/Taggers/data/diphoMVA_sigmaMoMdecorr_split_Mgg40_180.root")
+
 
 import flashgg.Taggers.flashggTags_cff as flashggTags
 process.load("flashgg.Taggers.flashggTags_cff")
