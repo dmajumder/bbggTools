@@ -729,7 +729,7 @@ void
 
     //Eff step 0
     if(DEBUG) std::cout << "Number of diphoton candidates: " << diphoVec.size() << std::endl;
-    h_Efficiencies->Fill(0.0, genTotalWeight);
+    //    h_Efficiencies->Fill(0.0, genTotalWeight);
 
 
     if (getNonResGenInfo){
