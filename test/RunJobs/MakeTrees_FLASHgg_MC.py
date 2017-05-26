@@ -12,8 +12,6 @@ process.bbggtree.puReWeight=cms.bool(True)
 process.bbggtree.puBins=cms.vdouble()
 process.bbggtree.dataPu=cms.vdouble()
 process.bbggtree.mcPu=cms.vdouble()
-process.bbggtree.doSigmaMdecorr = cms.bool(True),
-process.bbggtree.sigmaMdecorrFile = cms.FileInPath("flashgg/Taggers/data/diphoMVA_sigmaMoMdecorr_split_Mgg40_180.root"),
 print "I'M HERE 1"
 
 process.source = cms.Source("PoolSource",
@@ -116,7 +114,7 @@ if customize.doDoubleCountingMitigation is False:
 	process.bbggtree.doDoubleCountingMitigation = cms.untracked.uint32(0)
 
 process.bbggtree.doSigmaMdecorr = 1
-process.bbggtree.sigmaMdecorrFile = cms.FileInPath("flashgg/Taggers/data/diphoMVA_sigmaMoMdecorr_split_Mgg40_180.root")
+process.bbggtree.sigmaMdecorrFile = cms.untracked.FileInPath("flashgg/Taggers/data/diphoMVA_sigmaMoMdecorr_split_Mgg40_180.root")
 
 
 import flashgg.Taggers.flashggTags_cff as flashggTags
