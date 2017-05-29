@@ -497,7 +497,7 @@ def MakeLegend(HistList, DataHist, lumi, Signals, SUM, hideData, hideStat):
 	leg1 = TLegend(0.68, 0.85-lenPerHist*float(nMaxPerBox), 0.74, 0.89)
 #	if (3*nMaxPerBox > len(newList)+len(Signals)+2):
 #		nMaxPerBox -= 1
-	leg2 = TLegend(0.43, 0.85-lenPerHist*float(nMaxPerBox), 0.49, 0.89)
+	leg2 = TLegend(0.43, 0.85-lenPerHist*float(nMaxPerBox)/2.5, 0.49, 0.89)
 
 	leg3 = TLegend(0.13, 0.85-lenPerHist*float(nMaxPerBox), 0.19, 0.89)
 	
