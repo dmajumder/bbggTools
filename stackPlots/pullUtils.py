@@ -514,7 +514,7 @@ def MakeLegend(HistList, DataHist, lumi, Signals, SUM, hideData, hideStat):
 	
 	allLegs = []
 
-	allLegs.append([DataHist, "Data (" + str(llumi) + " fb^{-1})"])
+	allLegs.append([DataHist, "Data (" + str(lumi) + " fb^{-1})"])
 	allLegs.append([SUM,  "Stat. Uncertainty"])
 	allLegs += newList + Signals
 

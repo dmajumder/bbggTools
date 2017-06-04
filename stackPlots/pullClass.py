@@ -38,6 +38,7 @@ class myStack:
 		self.hideData_ = 0
 		self.hideStat_ = 0
 		self.doShape_ = 0
+		self.useJsonWeighting_ = 1
 	def hideData(self):
 		self.hideData_ = 1
 	def hideStat(self):
@@ -69,6 +70,9 @@ class myStack:
 			return 0
 	def doShape(self):
 		self.doShape_ = 1
+	def useJsonWeighting(self):
+		self.useJsonWeighting_ = 1
+
 	def drawStack(self, fileName):
 		if len(self.myHistograms) < 1:
 			print 'Your list of histograms is empty!'

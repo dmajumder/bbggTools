@@ -36,7 +36,7 @@ if doSignalRegion == True:
 if doJetCR == True:
 	Cut += " && leadingJet_bDis < "+ str(BTAG) + " && subleadingJet_bDis < "+ str(BTAG) + " "
 weightedcut = ""
-weightedcut += "( genTotalWeight )*"
+weightedcut += "( genTotalWeight *lumiFactor)*"
 if (doPUweight):
 	weightedcut += "( puweight )*("+Cut+")"
 weightedCut = TCut(weightedcut)
@@ -60,6 +60,10 @@ for plot in plots:
         thisStack.makeJetCR()
     if doShape == True:
         thisStack.doShape()
+    if useJsonWeighting == True:
+        thisStack.useJsonWeighting()
+
+
 
     thisStack.setYear(year)
 
@@ -93,15 +97,18 @@ for plot in plots:
             locHist = thisHist.Clone(locName)
             thisWeightedCut = weightedCut
             if "QCD" in thisTreeLoc:
-                thisWeightedCut = TCut(weightedcut.replace("isSignal == 1", "isSignal == 0"))
+		    thisWeightedCut = TCut(weightedcut.replace("isSignal == 1", "isSignal == 0"))
             Trees[thisTreeLoc].Draw(plot[1]+">>"+locName, thisWeightedCut)
 
-	    if not doShape:
+	    if not doShape and useJsonWeighting:
 		    locHist.Scale(MCSF*lumi*fi["xsec"]*fi["sfactor"]/fi["weight"])
-	    else:
+	    elif doShape:
 		    if not locHist.Integral() == 0:
 			    locHist.Scale(1./locHist.Integral())
 		    print locHist.Integral()
+	    else:
+		    locHist.Scale(fi["sfactor"])
+	    		    
 	    if not skipEmptyFile: #fixme! needs to be implemented
 		    thisHist.Add(locHist)
 		    Histos.append(locHist)
@@ -142,15 +149,20 @@ for plot in plots:
             Trees[thisTreeLoc].AddFile(signalLocation+thisTreeLoc)
             SetOwnership( Trees[thisTreeLoc], True )
         Trees[thisTreeLoc].Draw(plot[1]+">>"+thisName, cut_signal)
-	if not doShape:
+	if not doShape  and useJsonWeighting:
 		thisHist.Scale(lumi*signal["xsec"]*signal["sfactor"]/signal["weight"])
-	else:
+	elif doShape:
 		thisHist.Scale(1./thisHist.Integral())
-        Histos.append(thisHist)
-	if not doShape:
-		thisStack.addSignal(thisHist, signal["legend"], lumi*signal["xsec"]*signal["sfactor"]/signal["weight"])
 	else:
+		thisHist.Scale(signal["sfactor"])
+		
+        Histos.append(thisHist)
+	if not doShape and useJsonWeighting:
+		thisStack.addSignal(thisHist, signal["legend"], lumi*signal["xsec"]*signal["sfactor"]/signal["weight"])
+	elif doShape:
 		thisStack.addSignal(thisHist, signal["legend"], 1.)
+	else:
+		thisStack.addSignal(thisHist, signal["legend"], signal["sfactor"])
 
         del thisHist
     
