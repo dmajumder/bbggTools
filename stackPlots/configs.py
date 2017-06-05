@@ -14,7 +14,7 @@ useJsonWeighting=False
 
 isPhoCR = False
 addHiggs = False
-hideData = True
+hideData = False
 addbbH = False
 dyjets = False
 
@@ -75,7 +75,7 @@ plots.append(["diPho_Mass", "diphotonCandidate.M()", "M(#gamma#gamma) [GeV]", 80
 plots.append(["diJet_Mass", "dijetCandidate.M()", "M(jj) [GeV]", 40, 60, 180])
 
 
-'''
+
 
 plots.append(["PhotonIDMVA2", "(customSubLeadingPhotonIDMVA)", "SubLeading Photon Id MVA", nbin, -1, 1])
 plots.append(["PhotonIDMVA1", "(customLeadingPhotonIDMVA)", "Leading Photon Id MVA ", nbin, -1, 1])
@@ -129,7 +129,7 @@ plots.append(["leadingPhotonSigOverE", "leadingPhotonSigOverE", "Leading Photon 
 plots.append(["subleadingPhotonSigOverE", "subleadingPhotonSigOverE", "Subleading Photon #sigma_{E}/E", nbin, 0, 0.1])
 plots.append(["sigmaMOverMDecorr", "sigmaMOverMDecorr", "#sigma_{M_{decorr}}/M", nbin, 0, 0.1])
 
-'''
+
 
 #cuts to be used to make plots
 Cut = " isSignal && diphotonCandidate.M() > 100 && diphotonCandidate.M() < 180 "
