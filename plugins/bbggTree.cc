@@ -157,7 +157,12 @@ private:
 
     Double_t gen_mHH;
     Double_t gen_cosTheta;
-  Double_t gen_NRW;
+    Double_t gen_NRW;
+
+  //gen jets info
+  float leadingJet_genPtb, leadingJet_genPartonidb, leadingJet_genFlavourb,  leadingJet_genPartonFlavourb, leadingJet_genHadronFlavourb, leadingJet_genNbHadronsb, leadingJet_genNcHadronsb;
+  float leadingJet_cCSVb, leadingJet_DeepCSVbb, leadingJet_DeepCSVcb, leadingJet_DeepCSVlb, leadingJet_DeepCSVbbb, leadingJet_DeepCSVccb, leadingJet_cMVAv2b;  
+
   // -- End of Tree objects --
   // --    ---        --
 
@@ -592,7 +597,6 @@ void
 
     if( EvtCount%100 == 0 && !DEBUG) std::cout << "[bbggTree::analyze] Analyzing event number: " << EvtCount << std::endl;
     if (DEBUG) std::cout << "[bbggTree::analyze] Analyzing event number: " << EvtCount << std::endl;
-
     globVar_->fill(iEvent);
 
     EvtCount++;
@@ -670,6 +674,12 @@ void
     gen_cosTheta = -99;
 
     gen_NRW = 1;
+
+    //gen jets info
+     leadingJet_genPtb=-999; leadingJet_genPartonidb=-999; leadingJet_genFlavourb=-999;  leadingJet_genPartonFlavourb=-999; leadingJet_genHadronFlavourb=-999; leadingJet_genNbHadronsb=-999; leadingJet_genNcHadronsb=-999;
+    leadingJet_cCSVb=-999; leadingJet_DeepCSVbb=-999; leadingJet_DeepCSVcb=-999; leadingJet_DeepCSVlb=-999; leadingJet_DeepCSVbbb=-999; leadingJet_DeepCSVccb=-999; leadingJet_cMVAv2b=-999;  
+
+
     //Get Jets collections!
     JetCollectionVector theJetsCols( inputTagJets_.size() );
     for( size_t j = 0; j < inputTagJets_.size(); ++j ) {
@@ -1004,10 +1014,47 @@ void
     subleadingJet_flavour = SubLeadingJet.partonFlavour();
     subleadingJet_hadFlavour = SubLeadingJet.hadronFlavour();
 
+
     leadingJet_CSVv2 = LeadingJet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
     leadingJet_cMVA = LeadingJet.bDiscriminator("pfCombinedMVAV2BJetTags");
     subleadingJet_CSVv2 = SubLeadingJet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
     subleadingJet_cMVA = SubLeadingJet.bDiscriminator("pfCombinedMVAV2BJetTags");;
+
+    //..... gen jets info and deep csv info
+
+    int flavour  =-1  ;
+    int cflav = 0; //~correct flavour definition
+    if ( !iEvent.isRealData() ) {
+      flavour = abs( LeadingJet.partonFlavour() );
+      if ( flavour >= 1 && flavour <= 3 ) flavour = 1;
+          
+      int hflav = LeadingJet.hadronFlavour();
+      int pflav = LeadingJet.partonFlavour();
+
+	if( hflav != 0 ) {
+	  cflav = hflav;
+	} else { //not a heavy jet
+	  cflav = std::abs(pflav) == 4 || std::abs(pflav) == 5 ? 0 : pflav;
+	}
+
+
+      leadingJet_genPtb = ( LeadingJet.genJet()!=0 ? LeadingJet.genJet()->pt() : -1. );
+      leadingJet_genPartonidb = LeadingJet.genParton() ? LeadingJet.genParton()->pdgId() : 0 ;
+      leadingJet_genFlavourb = cflav;
+      leadingJet_genPartonFlavourb = LeadingJet.partonFlavour();
+      leadingJet_genHadronFlavourb = LeadingJet.hadronFlavour();
+      leadingJet_genNbHadronsb = LeadingJet.jetFlavourInfo().getbHadrons().size();
+      leadingJet_genNcHadronsb = LeadingJet.jetFlavourInfo().getcHadrons().size();
+      
+      leadingJet_cCSVb =LeadingJet.bDiscriminator("pfCombinedCvsBJetTags");
+      leadingJet_DeepCSVbb =LeadingJet.bDiscriminator("deepFlavourJetTags:probb"   );
+      leadingJet_DeepCSVcb =LeadingJet.bDiscriminator("deepFlavourJetTags:probc"   );
+      leadingJet_DeepCSVlb =LeadingJet.bDiscriminator("deepFlavourJetTags:probudsg");
+      leadingJet_DeepCSVbbb =LeadingJet.bDiscriminator("deepFlavourJetTags:probbb"  );
+      leadingJet_DeepCSVccb =LeadingJet.bDiscriminator("deepFlavourJetTags:probcc"  );
+      leadingJet_cMVAv2b =LeadingJet.bDiscriminator("pfCombinedMVAV2BJetTags");
+
+    }//geninfo
 
     dijetCandidate = leadingJet + subleadingJet;
     diHiggsCandidate = diphotonCandidate + dijetCandidate;
@@ -1240,6 +1287,23 @@ bbggTree::beginJob()
     tree->Branch("leadingJet_cMVA", &leadingJet_cMVA, "leadingJet_cMVA/F");
     tree->Branch("leadingJet_flavour", &leadingJet_flavour, "leadingJet_flavour/I");
     tree->Branch("leadingJet_hadFlavour", &leadingJet_hadFlavour, "leadingJet_hadFlavour/I");
+    //gen jets info
+    tree->Branch("leadingJet_genPtb",&leadingJet_genPtb, "leadingJet_genPtb/F");
+    tree->Branch("leadingJet_genPartonidb",&leadingJet_genPartonidb, "leadingJet_genPartonidb/F");
+    tree->Branch("leadingJet_genFlavourb",&leadingJet_genFlavourb, "leadingJet_genFlavourb/F");
+    tree->Branch("leadingJet_genPartonFlavourb",&leadingJet_genPartonFlavourb, "leadingJet_genPartonFlavourb/F");
+    tree->Branch("leadingJet_genHadronFlavourb",&leadingJet_genHadronFlavourb, "leadingJet_genHadronFlavourb/F");
+    tree->Branch("leadingJet_genNbHadronsb",&leadingJet_genNbHadronsb, "leadingJet_genNbHadronsb/F");
+    tree->Branch("leadingJet_genNcHadronsb",&leadingJet_genNcHadronsb, "leadingJet_genNcHadronsb/F");
+
+    tree->Branch("leadingJet_cCSVb",&leadingJet_cCSVb, "leadingJet_cCSVb/F");
+    tree->Branch("leadingJet_DeepCSVbb",&leadingJet_DeepCSVbb, "leadingJet_DeepCSVbb/F");
+    tree->Branch("leadingJet_DeepCSVcb",&leadingJet_DeepCSVcb, "leadingJet_DeepCSVcb/F");
+    tree->Branch("leadingJet_DeepCSVlb",&leadingJet_DeepCSVlb, "leadingJet_DeepCSVlb/F");
+    tree->Branch("leadingJet_DeepCSVbbb",&leadingJet_DeepCSVbbb, "leadingJet_DeepCSVbbb/F");
+    tree->Branch("leadingJet_DeepCSVccb",&leadingJet_DeepCSVccb, "leadingJet_DeepCSVccb/F");
+    tree->Branch("leadingJet_cMVAv2b",&leadingJet_cMVAv2b, "leadingJet_cMVAv2b/F");
+
     tree->Branch("subleadingJet", &subleadingJet);
     tree->Branch("subleadingJet_KF", &subleadingJet_KF);
     tree->Branch("subleadingJet_Reg", &subleadingJet_Reg);
