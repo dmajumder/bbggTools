@@ -161,7 +161,9 @@ private:
 
   //gen jets info
   float leadingJet_genPtb, leadingJet_genPartonidb, leadingJet_genFlavourb,  leadingJet_genPartonFlavourb, leadingJet_genHadronFlavourb, leadingJet_genNbHadronsb, leadingJet_genNcHadronsb;
+  float subleadingJet_genPtb, subleadingJet_genPartonidb, subleadingJet_genFlavourb,  subleadingJet_genPartonFlavourb, subleadingJet_genHadronFlavourb, subleadingJet_genNbHadronsb, subleadingJet_genNcHadronsb;
   float leadingJet_cCSVb, leadingJet_DeepCSVbb, leadingJet_DeepCSVcb, leadingJet_DeepCSVlb, leadingJet_DeepCSVbbb, leadingJet_DeepCSVccb, leadingJet_cMVAv2b;  
+  float subleadingJet_cCSVb, subleadingJet_DeepCSVbb, subleadingJet_DeepCSVcb, subleadingJet_DeepCSVlb, subleadingJet_DeepCSVbbb, subleadingJet_DeepCSVccb, subleadingJet_cMVAv2b;  
 
   // -- End of Tree objects --
   // --    ---        --
@@ -676,8 +678,11 @@ void
     gen_NRW = 1;
 
     //gen jets info
-     leadingJet_genPtb=-999; leadingJet_genPartonidb=-999; leadingJet_genFlavourb=-999;  leadingJet_genPartonFlavourb=-999; leadingJet_genHadronFlavourb=-999; leadingJet_genNbHadronsb=-999; leadingJet_genNcHadronsb=-999;
+    leadingJet_genPtb=-999; leadingJet_genPartonidb=-999; leadingJet_genFlavourb=-999;  leadingJet_genPartonFlavourb=-999; leadingJet_genHadronFlavourb=-999; leadingJet_genNbHadronsb=-999; leadingJet_genNcHadronsb=-999;
     leadingJet_cCSVb=-999; leadingJet_DeepCSVbb=-999; leadingJet_DeepCSVcb=-999; leadingJet_DeepCSVlb=-999; leadingJet_DeepCSVbbb=-999; leadingJet_DeepCSVccb=-999; leadingJet_cMVAv2b=-999;  
+
+    subleadingJet_genPtb=-999; subleadingJet_genPartonidb=-999; subleadingJet_genFlavourb=-999;  subleadingJet_genPartonFlavourb=-999; subleadingJet_genHadronFlavourb=-999; subleadingJet_genNbHadronsb=-999; subleadingJet_genNcHadronsb=-999;
+    subleadingJet_cCSVb=-999; subleadingJet_DeepCSVbb=-999; subleadingJet_DeepCSVcb=-999; subleadingJet_DeepCSVlb=-999; subleadingJet_DeepCSVbbb=-999; subleadingJet_DeepCSVccb=-999; subleadingJet_cMVAv2b=-999;  
 
 
     //Get Jets collections!
@@ -1054,6 +1059,24 @@ void
       leadingJet_DeepCSVccb =LeadingJet.bDiscriminator("deepFlavourJetTags:probcc"  );
       leadingJet_cMVAv2b =LeadingJet.bDiscriminator("pfCombinedMVAV2BJetTags");
 
+
+      subleadingJet_genPtb = ( SubLeadingJet.genJet()!=0 ? SubLeadingJet.genJet()->pt() : -1. );
+      subleadingJet_genPartonidb = SubLeadingJet.genParton() ? SubLeadingJet.genParton()->pdgId() : 0 ;
+      subleadingJet_genFlavourb = cflav;
+      subleadingJet_genPartonFlavourb = SubLeadingJet.partonFlavour();
+      subleadingJet_genHadronFlavourb = SubLeadingJet.hadronFlavour();
+      subleadingJet_genNbHadronsb = SubLeadingJet.jetFlavourInfo().getbHadrons().size();
+      subleadingJet_genNcHadronsb = SubLeadingJet.jetFlavourInfo().getcHadrons().size();
+      
+      subleadingJet_cCSVb =SubLeadingJet.bDiscriminator("pfCombinedCvsBJetTags");
+      subleadingJet_DeepCSVbb =SubLeadingJet.bDiscriminator("deepFlavourJetTags:probb"   );
+      subleadingJet_DeepCSVcb =SubLeadingJet.bDiscriminator("deepFlavourJetTags:probc"   );
+      subleadingJet_DeepCSVlb =SubLeadingJet.bDiscriminator("deepFlavourJetTags:probudsg");
+      subleadingJet_DeepCSVbbb =SubLeadingJet.bDiscriminator("deepFlavourJetTags:probbb"  );
+      subleadingJet_DeepCSVccb =SubLeadingJet.bDiscriminator("deepFlavourJetTags:probcc"  );
+      subleadingJet_cMVAv2b =SubLeadingJet.bDiscriminator("pfCombinedMVAV2BJetTags");
+
+
     }//geninfo
 
     dijetCandidate = leadingJet + subleadingJet;
@@ -1303,6 +1326,22 @@ bbggTree::beginJob()
     tree->Branch("leadingJet_DeepCSVbbb",&leadingJet_DeepCSVbbb, "leadingJet_DeepCSVbbb/F");
     tree->Branch("leadingJet_DeepCSVccb",&leadingJet_DeepCSVccb, "leadingJet_DeepCSVccb/F");
     tree->Branch("leadingJet_cMVAv2b",&leadingJet_cMVAv2b, "leadingJet_cMVAv2b/F");
+
+    tree->Branch("subleadingJet_genPtb",&subleadingJet_genPtb, "subleadingJet_genPtb/F");
+    tree->Branch("subleadingJet_genPartonidb",&subleadingJet_genPartonidb, "subleadingJet_genPartonidb/F");
+    tree->Branch("subleadingJet_genFlavourb",&subleadingJet_genFlavourb, "subleadingJet_genFlavourb/F");
+    tree->Branch("subleadingJet_genPartonFlavourb",&subleadingJet_genPartonFlavourb, "subleadingJet_genPartonFlavourb/F");
+    tree->Branch("subleadingJet_genHadronFlavourb",&subleadingJet_genHadronFlavourb, "subleadingJet_genHadronFlavourb/F");
+    tree->Branch("subleadingJet_genNbHadronsb",&subleadingJet_genNbHadronsb, "subleadingJet_genNbHadronsb/F");
+    tree->Branch("subleadingJet_genNcHadronsb",&subleadingJet_genNcHadronsb, "subleadingJet_genNcHadronsb/F");
+
+    tree->Branch("subleadingJet_cCSVb",&subleadingJet_cCSVb, "subleadingJet_cCSVb/F");
+    tree->Branch("subleadingJet_DeepCSVbb",&subleadingJet_DeepCSVbb, "subleadingJet_DeepCSVbb/F");
+    tree->Branch("subleadingJet_DeepCSVcb",&subleadingJet_DeepCSVcb, "subleadingJet_DeepCSVcb/F");
+    tree->Branch("subleadingJet_DeepCSVlb",&subleadingJet_DeepCSVlb, "subleadingJet_DeepCSVlb/F");
+    tree->Branch("subleadingJet_DeepCSVbbb",&subleadingJet_DeepCSVbbb, "subleadingJet_DeepCSVbbb/F");
+    tree->Branch("subleadingJet_DeepCSVccb",&subleadingJet_DeepCSVccb, "subleadingJet_DeepCSVccb/F");
+    tree->Branch("subleadingJet_cMVAv2b",&subleadingJet_cMVAv2b, "subleadingJet_cMVAv2b/F");
 
     tree->Branch("subleadingJet", &subleadingJet);
     tree->Branch("subleadingJet_KF", &subleadingJet_KF);
