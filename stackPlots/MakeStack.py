@@ -2,7 +2,7 @@ from pullClass import *
 from ROOT import *
 import json, os
 import shutil
-from configs import *
+from configsStack import *
 import resource
 
 #SetMemoryPolicy( kMemoryStrict )
