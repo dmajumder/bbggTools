@@ -1,7 +1,7 @@
 
 ##################################################
 ##################################################
-## Configuration parameters to run MakeStack.py ##
+## Configuration parameters to run MakeShape.py ##
 ##################################################
 ##################################################
 
@@ -9,6 +9,7 @@ doBlind = False
 doShape = True
 doSignalRegion = True
 doJetCR = False
+
 
 useJsonWeighting=False
 
@@ -49,18 +50,19 @@ dr_subleadPhoLeadJet ="sqrt( (subleadingPhoton.Eta() - leadingJet.Eta())*(sublea
 dr_subleadPhoSubleadJet ="sqrt( (subleadingPhoton.Eta() - subleadingJet.Eta())*(subleadingPhoton.Eta() - subleadingJet.Eta()) + TVector2::Phi_mpi_pi(subleadingPhoton.Phi() - subleadingJet.Phi())*TVector2::Phi_mpi_pi(subleadingPhoton.Phi() - subleadingJet.Phi()) )"
 dphi_hh="TVector2::Phi_mpi_pi(diphotonCandidate.Phi()-dijetCandidate.Phi())"
 dr_hh="sqrt( (diphotonCandidate.Eta() - dijetCandidate.Eta())*(diphotonCandidate.Eta() - dijetCandidate.Eta()) + TVector2::Phi_mpi_pi(diphotonCandidate.Phi() - dijetCandidate.Phi())*TVector2::Phi_mpi_pi(diphotonCandidate.Phi() - dijetCandidate.Phi()) )"
+n_bGen = "(subleadingJet_genFlavourb==5)+(leadingJet_genFlavourb==5)"
 
 #plots will be saved in dirName
 prefix = ""
-dirSuffix = "20170606"
+dirSuffix = "20170616"
 dirPrefix = "/afs/cern.ch/user/m/micheli/www/plots/HHBBGG/"
 dirName = dirPrefix + dirSuffix
 
 #Location of root files for each invidivual samples. Name of the root files is defined in datasets/datasets(76).json
-higgsoLocation="/afs/cern.ch/user/m/micheli/scratch1/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/test/RunJobs/Background_20170606/"
-bkgLocation="/afs/cern.ch/user/m/micheli/scratch1/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/test/RunJobs/Background_20170606/"
-dataLocation="/afs/cern.ch/user/m/micheli/scratch1/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/test/RunJobs/HHbbggSignal_20170606/"
-signalLocation="/afs/cern.ch/user/m/micheli/scratch1/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/test/RunJobs/HHbbggSignal_20170606/"
+higgsoLocation="/afs/cern.ch/user/m/micheli/scratch1/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/test/RunJobs/Background_20170606_2/"
+bkgLocation="/afs/cern.ch/user/m/micheli/scratch1/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/test/RunJobs/Background_20170606_2/"
+dataLocation="/afs/cern.ch/user/m/micheli/scratch1/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/test/RunJobs/HHbbggSignal_20170606_2/"
+signalLocation="/afs/cern.ch/user/m/micheli/scratch1/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/test/RunJobs/HHbbggSignal_20170606_2/"
 
 #plots to be made
 plots = []
@@ -125,10 +127,26 @@ plots.append(["dr_hh", dr_hh, "#DeltaR (hh)", nbin, 0, 8])
 plots.append(["leadingPhotonSigOverE", "leadingPhotonSigOverE", "Leading Photon #sigma_{E}/E", nbin, 0, 0.1])
 plots.append(["subleadingPhotonSigOverE", "subleadingPhotonSigOverE", "Subleading Photon #sigma_{E}/E", nbin, 0, 0.1])
 plots.append(["sigmaMOverMDecorr", "sigmaMOverMDecorr", "#sigma_{M_{decorr}}/M", nbin, 0, 0.1])
+
+
+#mc truth jets
+plots.append(["leadingJet_genFlavourb", "leadingJet_genFlavourb", "Leading Jet Flavour", 32, -10.5, 21.5])
+plots.append(["leadingJet_genPartonFlavourb", "leadingJet_genPartonFlavourb", "Leading Jet Parton Flavour", 32, -10.5, 21.5])
+plots.append(["leadingJet_genHadronFlavourb", "leadingJet_genHadronFlavourb", "Leading Jet Hadron Flavour", 32, -10.5, 21.5])
+plots.append(["leadingJet_genPartonFlavourb", "leadingJet_genPartonFlavourb", "Leading Jet Parton Flavour", 32, -10.5, 21.5])
+plots.append(["leadingJet_genNbHadronsb", "leadingJet_genNbHadronsb", "Leading Jet N_{b}", 10,-0.5,9.5])
+plots.append(["leadingJet_genNcHadronsb", "leadingJet_genNcHadronsb", "Leading Jet N_{c}", 10,-0.5,9.5])
+
+
+plots.append(["subleadingJet_genFlavourb", "subleadingJet_genFlavourb", "Subleading Jet Flavour", 32, -10.5, 21.5])
+plots.append(["subleadingJet_genPartonFlavourb", "subleadingJet_genPartonFlavourb", "Subleading Jet Parton Flavour", 32, -10.5, 21.5])
+plots.append(["subleadingJet_genHadronFlavourb", "subleadingJet_genHadronFlavourb", "Subleading Jet Hadron Flavour", 32, -10.5, 21.5])
+plots.append(["subleadingJet_genPartonFlavourb", "subleadingJet_genPartonFlavourb", "Subleading Jet Parton Flavour", 32, -10.5, 21.5])
+plots.append(["subleadingJet_genNbHadronsb", "subleadingJet_genNbHadronsb", "Subleading Jet N_{b}", 10,-0.5,9.5])
+plots.append(["subleadingJet_genNcHadronsb", "subleadingJet_genNcHadronsb", "Subleading Jet N_{c}", 10,-0.5,9.5])
 '''
-plots.append(["leadingJet_genFlavourb", "leadingJet_genFlavourb", "Leading Jet gen flavour", 32, -10.5, 21.5])
 
-
+plots.append(["n_bGen",n_bGen,"Number of b-jets (MCTruth)",3,-0.5,2.5])
 
 #cuts to be used to make plots
 Cut = " isSignal && diphotonCandidate.M() > 100 && diphotonCandidate.M() < 180"
