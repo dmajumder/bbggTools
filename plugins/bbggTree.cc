@@ -1027,25 +1027,31 @@ void
 
     //..... gen jets info and deep csv info
 
-    int flavour  =-1  ;
-    int cflav = 0; //~correct flavour definition
+    int cflavLeading = 0; //~correct flavour definition
+    int cflavSubLeading = 0; //~correct flavour definition
     if ( !iEvent.isRealData() ) {
-      flavour = abs( LeadingJet.partonFlavour() );
-      if ( flavour >= 1 && flavour <= 3 ) flavour = 1;
-          
-      int hflav = LeadingJet.hadronFlavour();
+      int hflav = LeadingJet.hadronFlavour();//4 if c, 5 if b, 0 if light jets
       int pflav = LeadingJet.partonFlavour();
 
 	if( hflav != 0 ) {
-	  cflav = hflav;
+	  cflavLeading = hflav;
 	} else { //not a heavy jet
-	  cflav = std::abs(pflav) == 4 || std::abs(pflav) == 5 ? 0 : pflav;
+	  cflavLeading = std::abs(pflav) == 4 || std::abs(pflav) == 5 ? 0 : pflav;
+	}
+	
+	hflav = SubLeadingJet.hadronFlavour();
+	pflav = SubLeadingJet.partonFlavour();
+
+	if( hflav != 0 ) {
+	  cflavSubLeading = hflav;
+	} else { //not a heavy jet
+	  cflavSubLeading = std::abs(pflav) == 4 || std::abs(pflav) == 5 ? 0 : pflav;
 	}
 
 
       leadingJet_genPtb = ( LeadingJet.genJet()!=0 ? LeadingJet.genJet()->pt() : -1. );
       leadingJet_genPartonidb = LeadingJet.genParton() ? LeadingJet.genParton()->pdgId() : 0 ;
-      leadingJet_genFlavourb = cflav;
+      leadingJet_genFlavourb = cflavLeading;
       leadingJet_genPartonFlavourb = LeadingJet.partonFlavour();
       leadingJet_genHadronFlavourb = LeadingJet.hadronFlavour();
       leadingJet_genNbHadronsb = LeadingJet.jetFlavourInfo().getbHadrons().size();
@@ -1062,7 +1068,7 @@ void
 
       subleadingJet_genPtb = ( SubLeadingJet.genJet()!=0 ? SubLeadingJet.genJet()->pt() : -1. );
       subleadingJet_genPartonidb = SubLeadingJet.genParton() ? SubLeadingJet.genParton()->pdgId() : 0 ;
-      subleadingJet_genFlavourb = cflav;
+      subleadingJet_genFlavourb = cflavSubLeading;
       subleadingJet_genPartonFlavourb = SubLeadingJet.partonFlavour();
       subleadingJet_genHadronFlavourb = SubLeadingJet.hadronFlavour();
       subleadingJet_genNbHadronsb = SubLeadingJet.jetFlavourInfo().getbHadrons().size();
