@@ -44,11 +44,15 @@ cut_data = TCut(Cut)
 cut_signal = TCut(weightedcut.replace("!((diphotonCandidate.M() > 115 && diphotonCandidate.M() < 135))", "(1>0)"))
 
 colors = []
+colors.append(kBlack)
 colors.append(kRed)
 colors.append(kBlue)
 colors.append(kMagenta)
 colors.append(kViolet)
 colors.append(kGreen)
+colors.append(kOrange)
+colors.append(kPink)
+colors.append(kCyan)
 
 kColor=0
 
@@ -105,7 +109,7 @@ for plot in plots:
             for j in range(0,5):
                 thisName = plot[0]+"_hist"+"_"+background
                 thisHist = modelHist.Clone(thisName)
-                thisHist.SetLineColor(colors[i]+j)
+                thisHist.SetLineColor(colors[j])
                 locName = thisName+str(j)
                 locHist = thisHist.Clone(locName)
 
