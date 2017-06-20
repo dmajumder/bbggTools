@@ -72,6 +72,9 @@ Implementation:
 //needed for sigmaMOverM
 #include "flashgg/Taggers/interface/FunctionHelpers.h"
 
+//needed for diphoton mva
+#include "flashgg/DataFormats/interface/DiPhotonMVAResult.h"
+
 //
 // class declaration
 //
@@ -119,582 +122,593 @@ private:
     edm::EDGetTokenT<edm::TriggerResults> triggerToken_;
 //    edm::EDGetTokenT<edm::View<pat::MET> > METToken_;
     edm::EDGetTokenT<edm::View<flashgg::Met> > METToken_;
+  //needed for diphoton mva
+  edm::EDGetTokenT<edm::View<flashgg::DiPhotonMVAResult> > mvaResultToken_;
+
+
+     //Efficiency histogram
+     TH1F* h_Efficiencies = new TH1F("h_Efficiencies", "Efficiencies;Cut Level;Number of events", 10, 0, 10);
+     TH1F* h_hggid = new TH1F("h_hggid", "", 100, -1, 1);
+     //Tree objects
+     LorentzVector leadingPhoton, subleadingPhoton, diphotonCandidate;
+     LorentzVector leadingJet, subleadingJet, dijetCandidate;
+     LorentzVector leadingJet_VBF, subleadingJet_VBF, DijetVBF;
+     float dEta_VBF, Mjj_VBF;
+     LorentzVector leadingJet_KF, subleadingJet_KF, dijetCandidate_KF;
+     LorentzVector leadingJet_Reg, subleadingJet_Reg, dijetCandidate_Reg;
+     LorentzVector leadingJet_RegKF, subleadingJet_RegKF, dijetCandidate_RegKF;
+     LorentzVector diHiggsCandidate, diHiggsCandidate_KF, diHiggsCandidate_Reg,diHiggsCandidate_RegKF;
+     vector<int> leadingPhotonID, leadingPhotonISO, subleadingPhotonID, subleadingPhotonISO;
+     vector<double> genWeights;
+     float leadingJet_bDis, subleadingJet_bDis, jet1PtRes, jet1EtaRes, jet1PhiRes, jet2PtRes, jet2EtaRes, jet2PhiRes;
+     float leadingJet_CSVv2, leadingJet_cMVA, subleadingJet_CSVv2, subleadingJet_cMVA;
+     float leadingPhotonIDMVA, subleadingPhotonIDMVA, DiJetDiPho_DR, PhoJetMinDr;
+     float leadingPhotonSigOverE, subleadingPhotonSigOverE, sigmaMOverM, sigmaMOverMDecorr;
+  float diphoMVA;
+     float CosThetaStar, CosThetaStar_CS, CosTheta_bb, CosTheta_gg, CosTheta_bbgg, CosTheta_ggbb, Phi0, Phi1;
+     std::map<std::string, int> myTriggerResults;
+     float leadingPhotonR9full5x5, subleadingPhotonR9full5x5, customLeadingPhotonMVA, customSubLeadingPhotonMVA;
+     int leadingPhotonHasGain1, leadingPhotonHasGain6;
+     int subLeadingPhotonHasGain1, subLeadingPhotonHasGain6;
+     float HHTagger, HHTagger_LM, HHTagger_HM;
+     float ResHHTagger, ResHHTagger_LM, ResHHTagger_HM;
+     float MX;
+
+     double genTotalWeight;
+     unsigned int nPromptInDiPhoton;
+     int leadingPhotonEVeto, subleadingPhotonEVeto;
+     int leadingJet_flavour, subleadingJet_flavour;
+     int leadingJet_hadFlavour, subleadingJet_hadFlavour;
+     int isSignal, isPhotonCR;
+     //    int nvtx;
+
+     Double_t gen_mHH;
+     Double_t gen_cosTheta;
+     Double_t gen_NRW;
+
+   //gen jets info
+   float leadingJet_genPtb, leadingJet_genPartonidb, leadingJet_genFlavourb,  leadingJet_genPartonFlavourb, leadingJet_genHadronFlavourb, leadingJet_genNbHadronsb, leadingJet_genNcHadronsb;
+   float subleadingJet_genPtb, subleadingJet_genPartonidb, subleadingJet_genFlavourb,  subleadingJet_genPartonFlavourb, subleadingJet_genHadronFlavourb, subleadingJet_genNbHadronsb, subleadingJet_genNcHadronsb;
+   float leadingJet_cCSVb, leadingJet_DeepCSVbb, leadingJet_DeepCSVcb, leadingJet_DeepCSVlb, leadingJet_DeepCSVbbb, leadingJet_DeepCSVccb, leadingJet_cMVAv2b;  
+   float subleadingJet_cCSVb, subleadingJet_DeepCSVbb, subleadingJet_DeepCSVcb, subleadingJet_DeepCSVlb, subleadingJet_DeepCSVbbb, subleadingJet_DeepCSVccb, subleadingJet_cMVAv2b;  
+
+   // -- End of Tree objects --
+   // --    ---        --
+
+     vector<LorentzVector> leadingjets, subleadingjets, dijets;
+     vector<double> leadingjets_bDiscriminant, subleadingjets_bDiscriminant;
+     vector<int> leadingjets_partonID, subleadingjets_partonID;
+     vector<double> leadingJets_DRleadingPho, leadingJets_DRsubleadingPho;
+     vector<double> subleadingJets_DRleadingPho, subleadingJets_DRsubleadingPho;
+     vector<double> Jets_minDRPho, Jets_DR, DiJets_DRDiPho;
+
+     //Parameters
+     std::vector<double> phoIDlooseEB, phoIDlooseEE;
+     std::vector<double> phoIDmediumEB, phoIDmediumEE;
+     std::vector<double> phoIDtightEB, phoIDtightEE;
+     std::vector<double> phoISOlooseEB, phoISOlooseEE;
+     std::vector<double> phoISOmediumEB, phoISOmediumEE;
+     std::vector<double> phoISOtightEB,phoISOtightEE;
+     std::vector<double> nhCorrEB, nhCorrEE;
+     std::vector<double> phCorrEB, phCorrEE;
+     std::vector<double> ph_pt, ph_eta, ph_r9;
+     std::vector<double> diph_pt, diph_eta, diph_mass, MVAPhotonID;
+     std::vector<int> ph_elVeto, ph_doelVeto, ph_doID, ph_doISO;
+     std::vector<std::string> ph_whichID, ph_whichISO;
+     unsigned int diph_onlyfirst;
+     std::vector<double> jt_pt, jt_eta, jt_drPho, jt_bDis;
+     std::vector<int> jt_doPU, jt_doID;
+     unsigned int n_bJets;
+     std::vector<double> dijt_pt, dijt_eta, dijt_mass;
+     std::vector<double> cand_pt, cand_eta, cand_mass, dr_cands;
+     unsigned int nPromptPhotons, doDoubleCountingMitigation, doPhotonCR, doJetRegression;
+     std::vector<std::string> myTriggers;
+     std::string bTagType, PhotonMVAEstimator;
+     unsigned int DoMVAPhotonID;
+     edm::FileInPath bRegFileLeading, bRegFileSubLeading;
+     unsigned int is2016, doCustomPhotonMVA;
+     int doPhotonScale, doPhotonExtraScale, doPhotonSmearing;
+     std::string PhotonScaleFile;
+     int addNonResMVA;
+     edm::FileInPath NonResMVAWeights_LowMass, NonResMVAWeights_HighMass;
+     edm::FileInPath ResMVAWeights_LowMass, ResMVAWeights_HighMass;
+     std::vector<std::string> NonResMVAVars;
+
+     int jetSmear;
+     int jetScale;
+     std::string randomLabel;
+     edm::FileInPath resFile, sfFile, scaleFile;
+
+   //sigmaMoverM
+   unsigned int  doDecorr;
+   unsigned int  def_doDecorr;
+   edm::FileInPath sigmaMdecorrFile;
+   edm::FileInPath def_sigmaMdecorrFile;
+   DecorrTransform* transfEBEB_;
+   DecorrTransform* transfNotEBEB_;
+   TH2D* h_decorrEBEB_;
+   TH2D* h_decorrNotEBEB_;
+
+
+   Bool_t getNonResGenInfo;
+   // Class for NonRes re-weighting:
+   NonResWeights *NRW;
+   // Array to store the weights of 12 benchmarks and [0] is always 1:
+   float  NRWeights[13];
+   unsigned int BenchNum;
+
+     //OutFile & Hists
+     TFile* outFile;
+     TTree* tree;
+     std::string fileName;
+
+     //Event counter for cout's
+     long unsigned int EvtCount;
+ };
+
+ //
+ // constructors and destructor
+ //
+ bbggTree::bbggTree(const edm::ParameterSet& iConfig) :
+ diPhotonToken_( consumes<edm::View<flashgg::DiPhotonCandidate> >( iConfig.getUntrackedParameter<edm::InputTag> ( "DiPhotonTag", edm::InputTag( "flashggDiPhotons" ) ) ) ),
+ genToken_( consumes<edm::View<pat::PackedGenParticle> >( iConfig.getUntrackedParameter<edm::InputTag>( "GenTag", edm::InputTag( "prunedGenParticles" ) ) ) ),
+ genToken2_( consumes<edm::View<reco::GenParticle> >( iConfig.getUntrackedParameter<edm::InputTag>( "GenTag2", edm::InputTag( "flashggPrunedGenParticles" ) ) ) ),
+ inputTagJets_( iConfig.getParameter<std::vector<edm::InputTag> >( "inputTagJets" ) )
+ {
+
+
+     //now do what ever initialization is needed
+     tools_ = bbggTools();
+     jetReg_ = bbggJetRegression();
+     jetSys_ = bbggJetSystematics();
+     phoCorr_ = bbggPhotonCorrector();
+     nonresMVA_ = bbggNonResMVA();
+     resMVA_ = bbggNonResMVA();
+     NRW    = new NonResWeights();
+     //    globVar_ = new flashgg::GlobalVariablesDumper(iConfig,std::forward<edm::ConsumesCollector>(cc));
+     globVar_ = new flashgg::GlobalVariablesDumper(iConfig, consumesCollector() );
+     //Lumi weight
+     double lumiWeight_ = ( iConfig.getParameter<double>( "lumiWeight" ) );
+     globVar_->dumpLumiFactor(lumiWeight_);
+     EvtCount = 0;
+     //Default values for thresholds
+     std::string def_bTagType, def_PhotonMVAEstimator;
+     unsigned int def_is2016 = 1;
+     std::vector<double> def_ph_pt, def_ph_eta, def_ph_r9;
+     std::vector<double> def_diph_pt, def_diph_eta, def_diph_mass, def_MVAPhotonID;
+     std::vector<double> def_jt_pt, def_jt_eta, def_jt_drPho, def_jt_bDis;
+     std::vector<double> def_dijt_pt, def_dijt_eta, def_dijt_mass, def_cand_pt, def_cand_eta, def_cand_mass, def_dr_cands;
+     std::vector<int> def_ph_elVeto, def_ph_doelVeto, def_ph_doID;
+     std::vector<int> def_ph_doISO;
+     std::vector<int> def_jt_doPU, def_jt_doID;
+     std::vector<std::string> def_ph_whichID, def_ph_whichISO;
+     unsigned int def_diph_onlyfirst;
+     unsigned int def_n_bJets, def_doCustomPhotonMVA;
+     int def_doPhotonScale, def_doPhotonExtraScale, def_doPhotonSmearing;
+     std::string def_PhotonScaleFile;
+     int def_addNonResMVA ;
+     edm::FileInPath def_NonResMVAWeights_LowMass, def_NonResMVAWeights_HighMass;
+     edm::FileInPath def_ResMVAWeights_LowMass, def_ResMVAWeights_HighMass;
+     std::vector<std::string> def_NonResMVAVars;
+     //std::string def_bRegFile;
+     edm::FileInPath def_bRegFileLeading, def_bRegFileSubLeading;
+
+     //init values
+     def_ph_pt.push_back(10.); def_ph_pt.push_back(10.); def_ph_eta.push_back(20.); def_ph_eta.push_back(20.);
+     def_ph_r9.push_back(-1.); def_ph_r9.push_back(-1.); def_ph_elVeto.push_back(-1); def_ph_elVeto.push_back(-1);
+     def_ph_doelVeto.push_back(0); def_ph_elVeto.push_back(0); def_ph_doID.push_back(0); def_ph_doID.push_back(0);
+     def_ph_whichID.push_back("loose"); def_ph_whichID.push_back("loose"); def_ph_doISO.push_back(0); def_ph_doISO.push_back(0);
+     def_ph_whichISO.push_back("loose"); def_ph_whichISO.push_back("loose"); def_MVAPhotonID.push_back(1.); def_MVAPhotonID.push_back(1.);
+     def_diph_pt.push_back(10.); def_diph_pt.push_back(10.); def_diph_eta.push_back(0.); def_diph_eta.push_back(0.);
+     def_diph_mass.push_back(0.); def_diph_mass.push_back(1000.); def_diph_onlyfirst = 0; def_jt_pt.push_back(10.);
+     def_jt_pt.push_back(10.); def_jt_eta.push_back(20.); def_jt_eta.push_back(20.); def_jt_bDis.push_back(0.);
+     def_jt_bDis.push_back(0.); def_jt_doPU.push_back(0); def_jt_doPU.push_back(0); def_jt_doID.push_back(0);
+     def_jt_doID.push_back(0); def_n_bJets = 0; def_dijt_pt.push_back(10.); def_dijt_pt.push_back(10.);
+     def_dijt_eta.push_back(20.); def_dijt_eta.push_back(20.); def_dijt_mass.push_back(0.); def_dijt_mass.push_back(1000.);
+     def_jt_drPho.push_back(0.5); def_cand_pt.push_back(0.); def_cand_eta.push_back(20.); def_cand_mass.push_back(0.);
+     def_cand_mass.push_back(2000.); def_dr_cands.push_back(0.11); def_doCustomPhotonMVA = 1;
+     def_doPhotonScale = -10; def_doPhotonExtraScale = -10; def_doPhotonSmearing = -10;
+     def_PhotonScaleFile = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/80X_ichepV2_2016_pho";
+
+     unsigned int def_nPromptPhotons = 0;
+     unsigned int def_doDoubleCountingMitigation = 0;
+     unsigned int def_doPhotonCR = 0;
+     unsigned int def_doJetRegression = 0;
+     unsigned int def_DoMVAPhotonID = 0;
+     int def_jetSmear = 0;
+     int def_jetScale = 0;
+     std::string def_randomLabel = "";
+     def_addNonResMVA = 0;
+     def_NonResMVAWeights_LowMass = edm::FileInPath("flashgg/bbggTools/data/NonResMVA/TMVAClassification_BDT.weights_LowMass.xml");
+     def_NonResMVAWeights_HighMass = edm::FileInPath("flashgg/bbggTools/data/NonResMVA/TMVAClassification_BDT.weights_HighMass.xml");
+     def_ResMVAWeights_LowMass = edm::FileInPath("flashgg/bbggTools/data/NonResMVA/TMVAClassification_BDT.weights_LowMass.xml");
+     def_ResMVAWeights_HighMass = edm::FileInPath("flashgg/bbggTools/data/NonResMVA/TMVAClassification_BDT.weights_HighMass.xml");
+     def_NonResMVAVars.push_back("");
+
+ //    edm::FileInPath def_resFile = edm::FileInPath("flashgg/bbggTools/data/JetSystematics/Fall15_25nsV2_MC_PtResolution_AK4PFchs.txt");
+ //    edm::FileInPath def_sfFile = edm::FileInPath("flashgg/bbggTools/data/JetSystematics/Fall15_25nsV2_MC_SF_AK4PFchs.txt");
+ //    edm::FileInPath def_scaleFile = edm::FileInPath("flashgg/bbggTools/data/JetSystematics/Fall15_25nsV2_MC_Uncertainty_AK4PFchs.txt");
+
+     edm::FileInPath def_resFile = edm::FileInPath("flashgg/Systematics/data/JER/Spring16_25nsV10_MC_PtResolution_AK4PFchs.txt");
+     edm::FileInPath def_sfFile = edm::FileInPath("flashgg/Systematics/data/JER/Spring16_25nsV10_MC_SF_AK4PFchs.txt");
+     edm::FileInPath def_scaleFile = edm::FileInPath("flashgg/bbggTools/data/JetSystematics/Summer16_23Sep2016V4_MC_Uncertainty_AK4PFchs.txt");
+
+     std::vector<std::string> def_myTriggers;
+
+     std::string def_fileName;
+
+     def_bTagType = "pfCombinedInclusiveSecondaryVertexV2BJetTags";
+     def_fileName =  "out.root";
+
+     def_bRegFileLeading = edm::FileInPath("flashgg/bbggTools/data/BRegression/2016/BDTG_16plus3_jetGenJet_nu_80X_leading_9_13.weights.xml");
+     def_bRegFileSubLeading = edm::FileInPath("flashgg/bbggTools/data/BRegression/2016/BDTG_16plus3_jetGenJet_nu_80X_trailing_9_13.weights.xml");
+
+     //sigmaMoverM
+     def_doDecorr=0;
+     def_sigmaMdecorrFile = edm::FileInPath("flashgg/Taggers/data/diphoMVA_sigmaMoMdecorr_split_Mgg40_180.root");
+
+     //Get photon ID thresholds from config file
+     phoIDlooseEB = iConfig.getUntrackedParameter<std::vector<double > >("phoIDlooseEB");
+     phoIDlooseEE = iConfig.getUntrackedParameter<std::vector<double > >("phoIDlooseEE");
+     phoIDmediumEB = iConfig.getUntrackedParameter<std::vector<double > >("phoIDmediumEB");
+     phoIDmediumEE = iConfig.getUntrackedParameter<std::vector<double > >("phoIDmediumEE");
+     phoIDtightEB = iConfig.getUntrackedParameter<std::vector<double > >("phoIDtightEB");
+     phoIDtightEE = iConfig.getUntrackedParameter<std::vector<double > >("phoIDtightEE");
+     phoISOlooseEB = iConfig.getUntrackedParameter<std::vector<double > >("phoISOlooseEB");
+     phoISOlooseEE = iConfig.getUntrackedParameter<std::vector<double > >("phoISOlooseEE");
+     phoISOmediumEB = iConfig.getUntrackedParameter<std::vector<double > >("phoISOmediumEB");
+     phoISOmediumEE = iConfig.getUntrackedParameter<std::vector<double > >("phoISOmediumEE");
+     phoISOtightEB = iConfig.getUntrackedParameter<std::vector<double > >("phoISOtightEB");
+     phoISOtightEE = iConfig.getUntrackedParameter<std::vector<double > >("phoISOtightEE");
+     nhCorrEB = iConfig.getUntrackedParameter<std::vector<double > >("nhCorrEB");
+     nhCorrEE = iConfig.getUntrackedParameter<std::vector<double > >("nhCorrEE");
+     phCorrEB = iConfig.getUntrackedParameter<std::vector<double > >("phCorrEB");
+     phCorrEE = iConfig.getUntrackedParameter<std::vector<double > >("phCorrEE");
+
+     is2016 = iConfig.getUntrackedParameter<unsigned int>("is2016", def_is2016);
+
+     BenchNum = iConfig.getUntrackedParameter<unsigned int>("benchmark", 0);
+
+     //photon selection parameters
+     ph_pt     = iConfig.getUntrackedParameter<std::vector<double > >("PhotonPtOverDiPhotonMass", def_ph_pt);
+     ph_eta    = iConfig.getUntrackedParameter<std::vector<double > >("PhotonEta", def_ph_eta);
+     ph_r9     = iConfig.getUntrackedParameter<std::vector<double > >("PhotonR9", def_ph_r9);
+     ph_elVeto = iConfig.getUntrackedParameter<std::vector<int > >("PhotonElectronVeto", def_ph_elVeto);
+     ph_doelVeto = iConfig.getUntrackedParameter<std::vector<int > >("PhotonDoElectronVeto", def_ph_doelVeto);
+     ph_doID   = iConfig.getUntrackedParameter<std::vector<int > >("PhotonDoID", def_ph_doID);
+     ph_whichID   = iConfig.getUntrackedParameter<std::vector<std::string > >("PhotonWhichID", def_ph_whichID);
+     ph_doISO  = iConfig.getUntrackedParameter<std::vector<int > >("PhotonDoISO", def_ph_doISO);
+     ph_whichISO  = iConfig.getUntrackedParameter<std::vector<std::string > >("PhotonWhichISO", def_ph_whichISO);
+     diph_pt   = iConfig.getUntrackedParameter<std::vector<double > >("DiPhotonPt", def_diph_pt);
+     diph_eta  = iConfig.getUntrackedParameter<std::vector<double > >("DiPhotonEta", def_diph_eta);
+     diph_mass = iConfig.getUntrackedParameter<std::vector<double > >("DiPhotonMassWindow", def_diph_mass);
+     diph_onlyfirst = iConfig.getUntrackedParameter<unsigned int>("DiPhotonOnlyFirst", def_diph_onlyfirst);
+     nPromptPhotons = iConfig.getUntrackedParameter<unsigned int>("nPromptPhotons", def_nPromptPhotons);
+     doDoubleCountingMitigation = iConfig.getUntrackedParameter<unsigned int>("doDoubleCountingMitigation", def_doDoubleCountingMitigation);
+     doPhotonCR = iConfig.getUntrackedParameter<unsigned int>("doPhotonCR", def_doPhotonCR);
+     DoMVAPhotonID = iConfig.getUntrackedParameter<unsigned int>("DoMVAPhotonID", def_DoMVAPhotonID);
+     MVAPhotonID = iConfig.getUntrackedParameter<std::vector<double>>("MVAPhotonID", def_MVAPhotonID);
+     PhotonMVAEstimator = iConfig.getUntrackedParameter<std::string>("PhotonMVAEstimator", def_PhotonMVAEstimator);
+     doPhotonScale = iConfig.getUntrackedParameter<int>("doPhotonScale", def_doPhotonScale);
+     doPhotonExtraScale = iConfig.getUntrackedParameter<int>("doPhotonExtraScale", def_doPhotonExtraScale);
+     doPhotonSmearing = iConfig.getUntrackedParameter<int>("doPhotonSmearing", def_doPhotonSmearing);
+     PhotonScaleFile = iConfig.getUntrackedParameter<std::string >("PhotonCorrectionFile", def_PhotonScaleFile);
+     doCustomPhotonMVA = iConfig.getUntrackedParameter<unsigned int>("doCustomPhotonMVA", def_doCustomPhotonMVA);
+
+     //jet selection parameters
+     jt_pt     = iConfig.getUntrackedParameter<std::vector<double > >("JetPtOverDiJetMass", def_jt_pt);
+     jt_eta    = iConfig.getUntrackedParameter<std::vector<double > >("JetEta", def_jt_eta);
+     jt_drPho  = iConfig.getUntrackedParameter<std::vector<double > >("JetDrPho", def_jt_drPho);
+     jt_bDis   = iConfig.getUntrackedParameter<std::vector<double > >("JetBDiscriminant", def_jt_bDis);
+     jt_doPU   = iConfig.getUntrackedParameter<std::vector<int > >("JetDoPUID", def_jt_doPU);
+     jt_doID   = iConfig.getUntrackedParameter<std::vector<int > >("JetDoID", def_jt_doID);
+     n_bJets = iConfig.getUntrackedParameter<unsigned int>("n_bJets", def_n_bJets);
+     dijt_pt   = iConfig.getUntrackedParameter<std::vector<double > >("DiJetPt", def_dijt_pt);
+     dijt_eta  = iConfig.getUntrackedParameter<std::vector<double > >("DiJetEta", def_dijt_eta);
+     dijt_mass = iConfig.getUntrackedParameter<std::vector<double > >("DiJetMassWindow", def_dijt_mass);
+     doJetRegression = iConfig.getUntrackedParameter<unsigned int>("doJetRegression", def_doJetRegression);
+     bTagType = iConfig.getUntrackedParameter<std::string>( "bTagType", def_bTagType );
+     bRegFileLeading = iConfig.getUntrackedParameter<edm::FileInPath>("bRegFileLeading", def_bRegFileLeading);
+     bRegFileSubLeading = iConfig.getUntrackedParameter<edm::FileInPath>("bRegFileSubLeading", def_bRegFileSubLeading);
+     jetSmear = iConfig.getUntrackedParameter<int>("jetSmear", def_jetSmear);
+     jetScale = iConfig.getUntrackedParameter<int>("jetScale", def_jetScale);
+
+     //extra selection
+     cand_pt 	= iConfig.getUntrackedParameter<std::vector<double > >("CandidatePt", def_cand_mass);
+     cand_eta 	= iConfig.getUntrackedParameter<std::vector<double > >("CandidateEta", def_cand_mass);
+     cand_mass = iConfig.getUntrackedParameter<std::vector<double > >("CandidateMassWindow", def_cand_mass);
+     dr_cands  = iConfig.getUntrackedParameter<std::vector<double > >("CandidatesDeltaR", def_dr_cands);
+
+
+     fileName = iConfig.getUntrackedParameter<std::string>( "OutFileName", def_fileName );
+
+     //sigmaMOverM
+     doDecorr = iConfig.getUntrackedParameter<unsigned int>("doSigmaMdecorr", def_doDecorr);
+     sigmaMdecorrFile = iConfig.getUntrackedParameter<edm::FileInPath>("sigmaMdecorrFile", def_sigmaMdecorrFile); 
+
+     addNonResMVA = iConfig.getUntrackedParameter<unsigned int>("addNonResMVA", def_addNonResMVA);
+     NonResMVAWeights_LowMass = iConfig.getUntrackedParameter<edm::FileInPath>("NonResMVAWeights_LowMass", def_NonResMVAWeights_LowMass);
+     NonResMVAWeights_HighMass = iConfig.getUntrackedParameter<edm::FileInPath>("NonResMVAWeights_HighMass", def_NonResMVAWeights_HighMass);
+     ResMVAWeights_LowMass = iConfig.getUntrackedParameter<edm::FileInPath>("ResMVAWeights_LowMass", def_ResMVAWeights_LowMass);
+     ResMVAWeights_HighMass = iConfig.getUntrackedParameter<edm::FileInPath>("ResMVAWeights_HighMass", def_ResMVAWeights_HighMass);
+     NonResMVAVars = iConfig.getUntrackedParameter<std::vector<std::string > >("NonResMVAVars", NonResMVAVars);
+
+     //tokens and labels
+     genInfo_ = iConfig.getUntrackedParameter<edm::InputTag>( "genInfo", edm::InputTag("generator") );
+     genInfoToken_ = consumes<GenEventInfoProduct>( genInfo_ );
+     myTriggers = iConfig.getUntrackedParameter<std::vector<std::string> >("myTriggers", def_myTriggers);
+     triggerToken_ = consumes<edm::TriggerResults>( iConfig.getParameter<edm::InputTag>( "triggerTag" ) );
+ //    METToken_ = consumes<edm::View<pat::MET> >(iConfig.getParameter<edm::InputTag>("metTag"));
+     METToken_ = consumes<edm::View<flashgg::Met> >( iConfig.getParameter<edm::InputTag> ( "metTag" ) );
+     randomLabel = iConfig.getUntrackedParameter<std::string>("randomLabel", def_randomLabel);
+
+     resFile = iConfig.getUntrackedParameter<edm::FileInPath>("resFile", def_resFile);
+     sfFile = iConfig.getUntrackedParameter<edm::FileInPath>("sfFile", def_sfFile);
+     scaleFile = iConfig.getUntrackedParameter<edm::FileInPath>("scaleFile", def_scaleFile);
+
+     getNonResGenInfo = iConfig.getUntrackedParameter<bool>("getNonResGenInfo", false);
+
+     tools_.SetCut_DoMVAPhotonID(DoMVAPhotonID);
+     tools_.SetCut_MVAPhotonID(MVAPhotonID);
+     tools_.SetCut_PhotonMVAEstimator(PhotonMVAEstimator);
+
+     tools_.SetPhotonCR(doPhotonCR);
+     tools_.SetCut_PhotonPtOverDiPhotonMass( ph_pt );
+     tools_.SetCut_PhotonEta( ph_eta );
+     tools_.SetCut_PhotonDoID( ph_doID );
+     tools_.SetCut_PhotonDoISO( ph_doISO );
+     tools_.SetCut_PhotonR9( ph_r9 );
+     tools_.SetCut_PhotonElectronVeto( ph_elVeto );
+     tools_.SetCut_PhotonDoElectronVeto( ph_doelVeto );
+     tools_.SetCut_DiPhotonPt( diph_pt );
+     tools_.SetCut_DiPhotonEta( diph_eta );
+     tools_.SetCut_DiPhotonMassWindow( diph_mass );
+     tools_.SetCut_DiPhotonOnlyFirst( diph_onlyfirst );
+     tools_.SetCut_JetPt( jt_pt );
+     tools_.SetCut_JetEta( jt_eta );
+     tools_.SetCut_JetBDiscriminant( jt_bDis );
+     tools_.SetCut_JetDrPho( jt_drPho  );
+     tools_.SetCut_JetDoPUID( jt_doPU );
+     tools_.SetCut_JetDoID( jt_doID );
+     tools_.SetCut_n_bJets( n_bJets );
+     tools_.SetCut_DiJetPt( dijt_pt );
+     tools_.SetCut_DiJetEta( dijt_eta );
+     tools_.SetCut_DiJetMassWindow( dijt_mass );
+     tools_.SetCut_CandidateMassWindow( cand_mass );
+     tools_.SetCut_CandidatePt( cand_pt );
+     tools_.SetCut_CandidateEta( cand_eta );
+     tools_.SetCut_bTagType( bTagType );
+     tools_.SetCut_CandidatesDeltaR( dr_cands );
+
+     std::map<int, vector<double> > phoIDloose;
+     phoIDloose[0] = phoIDlooseEB;
+     phoIDloose[1] = phoIDlooseEE;
+     tools_.SetCut_phoIDloose(phoIDloose);
+
+     std::map<int, vector<double> > phoIDmedium;
+     phoIDmedium[0] = phoIDmediumEB;
+     phoIDmedium[1] = phoIDmediumEE;
+     tools_.SetCut_phoIDmedium(phoIDmedium);
+
+     std::map<int, vector<double> > phoIDtight;
+     phoIDtight[0] = phoIDtightEB;
+     phoIDtight[1] = phoIDtightEE;
+     tools_.SetCut_phoIDtight(phoIDtight);
+
+     std::map<int, vector<double> > phoISOloose;
+     phoISOloose[0] = phoISOlooseEB;
+     phoISOloose[1] = phoISOlooseEE;
+     tools_.SetCut_phoISOloose(phoISOloose);
+
+     std::map<int, vector<double> > phoISOmedium;
+     phoISOmedium[0] = phoISOmediumEB;
+     phoISOmedium[1] = phoISOmediumEE;
+     tools_.SetCut_phoISOmedium(phoISOmedium);
+
+     std::map<int, vector<double> > phoISOtight;
+     phoISOtight[0] = phoISOtightEB;
+     phoISOtight[1] = phoISOtightEE;
+     tools_.SetCut_phoISOtight(phoISOtight);
+
+     std::map<int, vector<double> > nhCorr;
+     nhCorr[0] = nhCorrEB;
+     nhCorr[1] = nhCorrEE;
+     tools_.SetCut_nhCorr(nhCorr);
+
+     std::map<int, vector<double> > phCorr;
+     phCorr[0] = phCorrEB;
+     phCorr[1] = phCorrEE;
+     tools_.SetCut_phCorr(phCorr);
+
+     tools_.SetCut_phoWhichID(ph_whichID);
+     tools_.SetCut_phoWhichISO(ph_whichISO);
+
+     std::vector<double> ptRes = iConfig.getUntrackedParameter<std::vector<double>>( "ptRes");
+     std::vector<double> etaRes = iConfig.getUntrackedParameter<std::vector<double>>( "etaRes");
+     std::vector<double> phiRes = iConfig.getUntrackedParameter<std::vector<double>>( "phiRes");
+     std::vector<double> etaBins = iConfig.getUntrackedParameter<std::vector<double>>("etaBins");
+
+     //needed for diphoton mva
+     mvaResultToken_ = consumes<edm::View<flashgg::DiPhotonMVAResult> >( iConfig.getParameter<edm::InputTag> ( "MVAResultTag" ) ) ;
+
+
+     kinFit_ = bbggKinFit();
+     kinFit_.SetJetResolutionParameters(etaBins, ptRes, etaRes, phiRes);
+     jetSys_.SetupScale(scaleFile.fullPath().data());
+
+     for (unsigned i = 0 ; i < inputTagJets_.size() ; i++) {
+	 auto token = consumes<edm::View<flashgg::Jet> >(inputTagJets_[i]);
+	 tokenJets_.push_back(token);
+     }
+
+     if(doJetRegression) {
+	 std::cout << "Regressing jets with the following weights files: " << std::endl;
+	 std::cout << "\t Leading jet: " << bRegFileLeading.fullPath().data() << std::endl;
+	 std::cout << "\t SubLeading jet: " << bRegFileSubLeading.fullPath().data() << std::endl;
+	 jetReg_.SetupRegression("BDTG method",  bRegFileLeading.fullPath().data(), bRegFileSubLeading.fullPath().data());
+     }
+
+     //Prepare scales and smearings
+     if (doPhotonSmearing > -10 || doPhotonScale > -10) {
+	 phoCorr_.SetupCorrector(PhotonScaleFile);
+	 phoCorr_.setRandomLabel(std::string("rnd_g_E"));
+     }
+
+     if(addNonResMVA) {
+	 nonresMVA_.SetupNonResMVA( NonResMVAWeights_LowMass.fullPath().data(), NonResMVAWeights_HighMass.fullPath().data(), NonResMVAVars);
+	 resMVA_.SetupNonResMVA( ResMVAWeights_LowMass.fullPath().data(), ResMVAWeights_HighMass.fullPath().data(), NonResMVAVars);
+     }
+
+     if (doDecorr){
+       TFile* f_decorr = new TFile((sigmaMdecorrFile.fullPath()).c_str(), "READ");
+       h_decorrEBEB_ = (TH2D*)f_decorr->Get("hist_sigmaM_M_EBEB"); 
+       h_decorrNotEBEB_ = (TH2D*)f_decorr->Get("hist_sigmaM_M_notEBEB");
+       if(h_decorrEBEB_ && h_decorrNotEBEB_){
+	 transfEBEB_ = new DecorrTransform(h_decorrEBEB_ , 125., 1, 0);
+	 transfNotEBEB_ = new DecorrTransform(h_decorrNotEBEB_ , 125., 1, 0);
+       }
+       else {
+	 throw cms::Exception( "Configuration" ) << "The file "<<sigmaMdecorrFile.fullPath()<<" provided for sigmaM/M decorrelation does not contain the expected histograms."<<std::endl;
+       }
+     }
+
+     if (getNonResGenInfo){
+       std::string fileNameWei1 = edm::FileInPath("flashgg/bbggTools/data/NonResReWeight/weights_v1_1507_points.root").fullPath();
+       std::string fileNameWei2 = edm::FileInPath("flashgg/bbggTools/data/NonResReWeight/weights_v3_bench12_points.root").fullPath();
+       NRW->LoadHists(fileNameWei1, fileNameWei2);
+       for (UInt_t n=0; n<13; n++) 
+	 NRWeights[n]=1;
+
+       // Check that provided benchmark number is in range 1-12
+       if (BenchNum>12){
+	 std::cout<<"\t ** warning** Provided BenchNum is out of range (1-12): "<<BenchNum<<std::endl;
+	 std::cout<<"I'm gonna set it to 0 to avoid problems"<<std::endl;
+	 BenchNum=0;
+       }
+     }
+
+     std::cout << "Parameters initialized... \n ############ Doing selection tree!" <<  std::endl;
+
+ }
+
+
+ bbggTree::~bbggTree()
+ {
+
+     // do anything here that needs to be done at desctruction time
+     // (e.g. close files, deallocate resources etc.)
+
+ }
+
+
+ //
+ // member functions
+ //
+
+ // ------------ method called for each event  ------------
+ void
+     bbggTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+ {
+
+     if( EvtCount%100 == 0 && !DEBUG) std::cout << "[bbggTree::analyze] Analyzing event number: " << EvtCount << std::endl;
+     if (DEBUG) std::cout << "[bbggTree::analyze] Analyzing event number: " << EvtCount << std::endl;
+     globVar_->fill(iEvent);
+
+     EvtCount++;
+     using namespace edm;
+     leadingPhotonID.clear();
+     leadingPhotonISO.clear();
+     subleadingPhotonID.clear();
+     subleadingPhotonISO.clear();
+
+     leadingjets.clear();
+     subleadingjets.clear();
+     dijets.clear();
+     leadingjets_bDiscriminant.clear();
+     subleadingjets_bDiscriminant.clear();
+     leadingjets_partonID.clear();
+     subleadingjets_partonID.clear();
+     leadingJets_DRleadingPho.clear();
+     leadingJets_DRsubleadingPho.clear();
+     leadingJets_DRleadingPho.clear();
+     subleadingJets_DRsubleadingPho.clear();
+     Jets_minDRPho.clear();
+     Jets_DR.clear();
+     DiJets_DRDiPho.clear();
+     isSignal = 0;
+     isPhotonCR = 0;
+     CosThetaStar = -999;
+     CosThetaStar_CS = -999;
+     CosTheta_bb = -999;
+     CosTheta_gg = -999;
+     CosTheta_bbgg = -999;
+     CosTheta_ggbb = -999;
+     Phi0 = -999;
+     Phi1 = -999;
+     genTotalWeight = 1.0;
+     leadingPhotonR9full5x5 = -999;
+     subleadingPhotonR9full5x5 = -999;
+     customLeadingPhotonMVA = -999;
+     customSubLeadingPhotonMVA = -999;
+     leadingPhotonHasGain1 = -10;
+     leadingPhotonHasGain6 = -10;
+     subLeadingPhotonHasGain1 = -10;
+     subLeadingPhotonHasGain6 = -10;
+     HHTagger = -10;
+     HHTagger_LM = -10;
+     HHTagger_HM = -10;
+     ResHHTagger = -10;
+     ResHHTagger_LM = -10;
+     ResHHTagger_HM = -10;
+
+     dEta_VBF = -999; 
+     Mjj_VBF = 0;
+
+     diphotonCandidate.SetPxPyPzE(0,0,0,0);// = diphoCand->p4();
+     leadingPhoton.SetPxPyPzE(0,0,0,0);// = diphoCand->leadingPhoton()->p4();
+     subleadingPhoton.SetPxPyPzE(0,0,0,0);// = diphoCand->subLeadingPhoton()->p4();
+     leadingJet.SetPxPyPzE(0,0,0,0);// = LeadingJet->p4();
+     leadingJet_bDis = 0;// = LeadingJet->bDiscriminator(bTagType);
+     leadingJet_flavour = 0;// = LeadingJet->partonFlavour();
+     subleadingJet.SetPxPyPzE(0,0,0,0);// = SubLeadingJet->p4();
+     subleadingJet_bDis = 0;//SubLeadingJet->bDiscriminator(bTagType);
+     subleadingJet_flavour = 0;//SubLeadingJet->partonFlavour();
+     dijetCandidate.SetPxPyPzE(0,0,0,0);// = leadingJet + subleadingJet;
+     diHiggsCandidate.SetPxPyPzE(0,0,0,0);// = diphotonCandidate + dijetCandidate;
+     leadingJet_CSVv2 = 0;
+     leadingJet_cMVA = 0;
+     subleadingJet_CSVv2 = 0;
+     subleadingJet_cMVA = 0;
+
+     leadingJet_VBF.SetPxPyPzE(0,0,0,0);// = LeadingJet->p4();
+     subleadingJet_VBF.SetPxPyPzE(0,0,0,0);// = LeadingJet->p4();
+
+
+
+     gen_mHH = 0;
+     gen_cosTheta = -99;
+
+     gen_NRW = 1;
+
+     //gen jets info
+     leadingJet_genPtb=-999; leadingJet_genPartonidb=-999; leadingJet_genFlavourb=-999;  leadingJet_genPartonFlavourb=-999; leadingJet_genHadronFlavourb=-999; leadingJet_genNbHadronsb=-999; leadingJet_genNcHadronsb=-999;
+     leadingJet_cCSVb=-999; leadingJet_DeepCSVbb=-999; leadingJet_DeepCSVcb=-999; leadingJet_DeepCSVlb=-999; leadingJet_DeepCSVbbb=-999; leadingJet_DeepCSVccb=-999; leadingJet_cMVAv2b=-999;  
+
+     subleadingJet_genPtb=-999; subleadingJet_genPartonidb=-999; subleadingJet_genFlavourb=-999;  subleadingJet_genPartonFlavourb=-999; subleadingJet_genHadronFlavourb=-999; subleadingJet_genNbHadronsb=-999; subleadingJet_genNcHadronsb=-999;
+     subleadingJet_cCSVb=-999; subleadingJet_DeepCSVbb=-999; subleadingJet_DeepCSVcb=-999; subleadingJet_DeepCSVlb=-999; subleadingJet_DeepCSVbbb=-999; subleadingJet_DeepCSVccb=-999; subleadingJet_cMVAv2b=-999;  
+
+
+     //Get Jets collections!
+     JetCollectionVector theJetsCols( inputTagJets_.size() );
+     for( size_t j = 0; j < inputTagJets_.size(); ++j ) {
+	 iEvent.getByToken( tokenJets_[j], theJetsCols[j] );
+     }
+
+     if (DEBUG) std::cout << "Number of jet collections!!!! " << theJetsCols.size() << std::endl;
+
+     Handle<View<flashgg::DiPhotonCandidate> > diPhotons;
+     iEvent.getByToken( diPhotonToken_, diPhotons );
 
-    //Efficiency histogram
-    TH1F* h_Efficiencies = new TH1F("h_Efficiencies", "Efficiencies;Cut Level;Number of events", 10, 0, 10);
-    TH1F* h_hggid = new TH1F("h_hggid", "", 100, -1, 1);
-    //Tree objects
-    LorentzVector leadingPhoton, subleadingPhoton, diphotonCandidate;
-    LorentzVector leadingJet, subleadingJet, dijetCandidate;
-    LorentzVector leadingJet_VBF, subleadingJet_VBF, DijetVBF;
-    float dEta_VBF, Mjj_VBF;
-    LorentzVector leadingJet_KF, subleadingJet_KF, dijetCandidate_KF;
-    LorentzVector leadingJet_Reg, subleadingJet_Reg, dijetCandidate_Reg;
-    LorentzVector leadingJet_RegKF, subleadingJet_RegKF, dijetCandidate_RegKF;
-    LorentzVector diHiggsCandidate, diHiggsCandidate_KF, diHiggsCandidate_Reg,diHiggsCandidate_RegKF;
-    vector<int> leadingPhotonID, leadingPhotonISO, subleadingPhotonID, subleadingPhotonISO;
-    vector<double> genWeights;
-    float leadingJet_bDis, subleadingJet_bDis, jet1PtRes, jet1EtaRes, jet1PhiRes, jet2PtRes, jet2EtaRes, jet2PhiRes;
-    float leadingJet_CSVv2, leadingJet_cMVA, subleadingJet_CSVv2, subleadingJet_cMVA;
-    float leadingPhotonIDMVA, subleadingPhotonIDMVA, DiJetDiPho_DR, PhoJetMinDr;
-    float leadingPhotonSigOverE, subleadingPhotonSigOverE, sigmaMOverM, sigmaMOverMDecorr;
-    float CosThetaStar, CosThetaStar_CS, CosTheta_bb, CosTheta_gg, CosTheta_bbgg, CosTheta_ggbb, Phi0, Phi1;
-    std::map<std::string, int> myTriggerResults;
-    float leadingPhotonR9full5x5, subleadingPhotonR9full5x5, customLeadingPhotonMVA, customSubLeadingPhotonMVA;
-    int leadingPhotonHasGain1, leadingPhotonHasGain6;
-    int subLeadingPhotonHasGain1, subLeadingPhotonHasGain6;
-    float HHTagger, HHTagger_LM, HHTagger_HM;
-    float ResHHTagger, ResHHTagger_LM, ResHHTagger_HM;
-    float MX;
-
-    double genTotalWeight;
-    unsigned int nPromptInDiPhoton;
-    int leadingPhotonEVeto, subleadingPhotonEVeto;
-    int leadingJet_flavour, subleadingJet_flavour;
-    int leadingJet_hadFlavour, subleadingJet_hadFlavour;
-    int isSignal, isPhotonCR;
-    //    int nvtx;
-
-    Double_t gen_mHH;
-    Double_t gen_cosTheta;
-    Double_t gen_NRW;
-
-  //gen jets info
-  float leadingJet_genPtb, leadingJet_genPartonidb, leadingJet_genFlavourb,  leadingJet_genPartonFlavourb, leadingJet_genHadronFlavourb, leadingJet_genNbHadronsb, leadingJet_genNcHadronsb;
-  float subleadingJet_genPtb, subleadingJet_genPartonidb, subleadingJet_genFlavourb,  subleadingJet_genPartonFlavourb, subleadingJet_genHadronFlavourb, subleadingJet_genNbHadronsb, subleadingJet_genNcHadronsb;
-  float leadingJet_cCSVb, leadingJet_DeepCSVbb, leadingJet_DeepCSVcb, leadingJet_DeepCSVlb, leadingJet_DeepCSVbbb, leadingJet_DeepCSVccb, leadingJet_cMVAv2b;  
-  float subleadingJet_cCSVb, subleadingJet_DeepCSVbb, subleadingJet_DeepCSVcb, subleadingJet_DeepCSVlb, subleadingJet_DeepCSVbbb, subleadingJet_DeepCSVccb, subleadingJet_cMVAv2b;  
-
-  // -- End of Tree objects --
-  // --    ---        --
-
-    vector<LorentzVector> leadingjets, subleadingjets, dijets;
-    vector<double> leadingjets_bDiscriminant, subleadingjets_bDiscriminant;
-    vector<int> leadingjets_partonID, subleadingjets_partonID;
-    vector<double> leadingJets_DRleadingPho, leadingJets_DRsubleadingPho;
-    vector<double> subleadingJets_DRleadingPho, subleadingJets_DRsubleadingPho;
-    vector<double> Jets_minDRPho, Jets_DR, DiJets_DRDiPho;
-
-    //Parameters
-    std::vector<double> phoIDlooseEB, phoIDlooseEE;
-    std::vector<double> phoIDmediumEB, phoIDmediumEE;
-    std::vector<double> phoIDtightEB, phoIDtightEE;
-    std::vector<double> phoISOlooseEB, phoISOlooseEE;
-    std::vector<double> phoISOmediumEB, phoISOmediumEE;
-    std::vector<double> phoISOtightEB,phoISOtightEE;
-    std::vector<double> nhCorrEB, nhCorrEE;
-    std::vector<double> phCorrEB, phCorrEE;
-    std::vector<double> ph_pt, ph_eta, ph_r9;
-    std::vector<double> diph_pt, diph_eta, diph_mass, MVAPhotonID;
-    std::vector<int> ph_elVeto, ph_doelVeto, ph_doID, ph_doISO;
-    std::vector<std::string> ph_whichID, ph_whichISO;
-    unsigned int diph_onlyfirst;
-    std::vector<double> jt_pt, jt_eta, jt_drPho, jt_bDis;
-    std::vector<int> jt_doPU, jt_doID;
-    unsigned int n_bJets;
-    std::vector<double> dijt_pt, dijt_eta, dijt_mass;
-    std::vector<double> cand_pt, cand_eta, cand_mass, dr_cands;
-    unsigned int nPromptPhotons, doDoubleCountingMitigation, doPhotonCR, doJetRegression;
-    std::vector<std::string> myTriggers;
-    std::string bTagType, PhotonMVAEstimator;
-    unsigned int DoMVAPhotonID;
-    edm::FileInPath bRegFileLeading, bRegFileSubLeading;
-    unsigned int is2016, doCustomPhotonMVA;
-    int doPhotonScale, doPhotonExtraScale, doPhotonSmearing;
-    std::string PhotonScaleFile;
-    int addNonResMVA;
-    edm::FileInPath NonResMVAWeights_LowMass, NonResMVAWeights_HighMass;
-    edm::FileInPath ResMVAWeights_LowMass, ResMVAWeights_HighMass;
-    std::vector<std::string> NonResMVAVars;
-
-    int jetSmear;
-    int jetScale;
-    std::string randomLabel;
-    edm::FileInPath resFile, sfFile, scaleFile;
-  
-  //sigmaMoverM
-  unsigned int  doDecorr;
-  unsigned int  def_doDecorr;
-  edm::FileInPath sigmaMdecorrFile;
-  edm::FileInPath def_sigmaMdecorrFile;
-  DecorrTransform* transfEBEB_;
-  DecorrTransform* transfNotEBEB_;
-  TH2D* h_decorrEBEB_;
-  TH2D* h_decorrNotEBEB_;
-
-
-  Bool_t getNonResGenInfo;
-  // Class for NonRes re-weighting:
-  NonResWeights *NRW;
-  // Array to store the weights of 12 benchmarks and [0] is always 1:
-  float  NRWeights[13];
-  unsigned int BenchNum;
-
-    //OutFile & Hists
-    TFile* outFile;
-    TTree* tree;
-    std::string fileName;
-
-    //Event counter for cout's
-    long unsigned int EvtCount;
-};
-
-//
-// constructors and destructor
-//
-bbggTree::bbggTree(const edm::ParameterSet& iConfig) :
-diPhotonToken_( consumes<edm::View<flashgg::DiPhotonCandidate> >( iConfig.getUntrackedParameter<edm::InputTag> ( "DiPhotonTag", edm::InputTag( "flashggDiPhotons" ) ) ) ),
-genToken_( consumes<edm::View<pat::PackedGenParticle> >( iConfig.getUntrackedParameter<edm::InputTag>( "GenTag", edm::InputTag( "prunedGenParticles" ) ) ) ),
-genToken2_( consumes<edm::View<reco::GenParticle> >( iConfig.getUntrackedParameter<edm::InputTag>( "GenTag2", edm::InputTag( "flashggPrunedGenParticles" ) ) ) ),
-inputTagJets_( iConfig.getParameter<std::vector<edm::InputTag> >( "inputTagJets" ) )
-{
-    //now do what ever initialization is needed
-    tools_ = bbggTools();
-    jetReg_ = bbggJetRegression();
-    jetSys_ = bbggJetSystematics();
-    phoCorr_ = bbggPhotonCorrector();
-    nonresMVA_ = bbggNonResMVA();
-    resMVA_ = bbggNonResMVA();
-    NRW    = new NonResWeights();
-    //    globVar_ = new flashgg::GlobalVariablesDumper(iConfig,std::forward<edm::ConsumesCollector>(cc));
-    globVar_ = new flashgg::GlobalVariablesDumper(iConfig, consumesCollector() );
-    //Lumi weight
-    double lumiWeight_ = ( iConfig.getParameter<double>( "lumiWeight" ) );
-    globVar_->dumpLumiFactor(lumiWeight_);
-    EvtCount = 0;
-    //Default values for thresholds
-    std::string def_bTagType, def_PhotonMVAEstimator;
-    unsigned int def_is2016 = 1;
-    std::vector<double> def_ph_pt, def_ph_eta, def_ph_r9;
-    std::vector<double> def_diph_pt, def_diph_eta, def_diph_mass, def_MVAPhotonID;
-    std::vector<double> def_jt_pt, def_jt_eta, def_jt_drPho, def_jt_bDis;
-    std::vector<double> def_dijt_pt, def_dijt_eta, def_dijt_mass, def_cand_pt, def_cand_eta, def_cand_mass, def_dr_cands;
-    std::vector<int> def_ph_elVeto, def_ph_doelVeto, def_ph_doID;
-    std::vector<int> def_ph_doISO;
-    std::vector<int> def_jt_doPU, def_jt_doID;
-    std::vector<std::string> def_ph_whichID, def_ph_whichISO;
-    unsigned int def_diph_onlyfirst;
-    unsigned int def_n_bJets, def_doCustomPhotonMVA;
-    int def_doPhotonScale, def_doPhotonExtraScale, def_doPhotonSmearing;
-    std::string def_PhotonScaleFile;
-    int def_addNonResMVA ;
-    edm::FileInPath def_NonResMVAWeights_LowMass, def_NonResMVAWeights_HighMass;
-    edm::FileInPath def_ResMVAWeights_LowMass, def_ResMVAWeights_HighMass;
-    std::vector<std::string> def_NonResMVAVars;
-    //std::string def_bRegFile;
-    edm::FileInPath def_bRegFileLeading, def_bRegFileSubLeading;
-
-    //init values
-    def_ph_pt.push_back(10.); def_ph_pt.push_back(10.); def_ph_eta.push_back(20.); def_ph_eta.push_back(20.);
-    def_ph_r9.push_back(-1.); def_ph_r9.push_back(-1.); def_ph_elVeto.push_back(-1); def_ph_elVeto.push_back(-1);
-    def_ph_doelVeto.push_back(0); def_ph_elVeto.push_back(0); def_ph_doID.push_back(0); def_ph_doID.push_back(0);
-    def_ph_whichID.push_back("loose"); def_ph_whichID.push_back("loose"); def_ph_doISO.push_back(0); def_ph_doISO.push_back(0);
-    def_ph_whichISO.push_back("loose"); def_ph_whichISO.push_back("loose"); def_MVAPhotonID.push_back(1.); def_MVAPhotonID.push_back(1.);
-    def_diph_pt.push_back(10.); def_diph_pt.push_back(10.); def_diph_eta.push_back(0.); def_diph_eta.push_back(0.);
-    def_diph_mass.push_back(0.); def_diph_mass.push_back(1000.); def_diph_onlyfirst = 0; def_jt_pt.push_back(10.);
-    def_jt_pt.push_back(10.); def_jt_eta.push_back(20.); def_jt_eta.push_back(20.); def_jt_bDis.push_back(0.);
-    def_jt_bDis.push_back(0.); def_jt_doPU.push_back(0); def_jt_doPU.push_back(0); def_jt_doID.push_back(0);
-    def_jt_doID.push_back(0); def_n_bJets = 0; def_dijt_pt.push_back(10.); def_dijt_pt.push_back(10.);
-    def_dijt_eta.push_back(20.); def_dijt_eta.push_back(20.); def_dijt_mass.push_back(0.); def_dijt_mass.push_back(1000.);
-    def_jt_drPho.push_back(0.5); def_cand_pt.push_back(0.); def_cand_eta.push_back(20.); def_cand_mass.push_back(0.);
-    def_cand_mass.push_back(2000.); def_dr_cands.push_back(0.11); def_doCustomPhotonMVA = 1;
-    def_doPhotonScale = -10; def_doPhotonExtraScale = -10; def_doPhotonSmearing = -10;
-    def_PhotonScaleFile = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/80X_ichepV2_2016_pho";
-
-    unsigned int def_nPromptPhotons = 0;
-    unsigned int def_doDoubleCountingMitigation = 0;
-    unsigned int def_doPhotonCR = 0;
-    unsigned int def_doJetRegression = 0;
-    unsigned int def_DoMVAPhotonID = 0;
-    int def_jetSmear = 0;
-    int def_jetScale = 0;
-    std::string def_randomLabel = "";
-    def_addNonResMVA = 0;
-    def_NonResMVAWeights_LowMass = edm::FileInPath("flashgg/bbggTools/data/NonResMVA/TMVAClassification_BDT.weights_LowMass.xml");
-    def_NonResMVAWeights_HighMass = edm::FileInPath("flashgg/bbggTools/data/NonResMVA/TMVAClassification_BDT.weights_HighMass.xml");
-    def_ResMVAWeights_LowMass = edm::FileInPath("flashgg/bbggTools/data/NonResMVA/TMVAClassification_BDT.weights_LowMass.xml");
-    def_ResMVAWeights_HighMass = edm::FileInPath("flashgg/bbggTools/data/NonResMVA/TMVAClassification_BDT.weights_HighMass.xml");
-    def_NonResMVAVars.push_back("");
-
-//    edm::FileInPath def_resFile = edm::FileInPath("flashgg/bbggTools/data/JetSystematics/Fall15_25nsV2_MC_PtResolution_AK4PFchs.txt");
-//    edm::FileInPath def_sfFile = edm::FileInPath("flashgg/bbggTools/data/JetSystematics/Fall15_25nsV2_MC_SF_AK4PFchs.txt");
-//    edm::FileInPath def_scaleFile = edm::FileInPath("flashgg/bbggTools/data/JetSystematics/Fall15_25nsV2_MC_Uncertainty_AK4PFchs.txt");
-
-    edm::FileInPath def_resFile = edm::FileInPath("flashgg/Systematics/data/JER/Spring16_25nsV10_MC_PtResolution_AK4PFchs.txt");
-    edm::FileInPath def_sfFile = edm::FileInPath("flashgg/Systematics/data/JER/Spring16_25nsV10_MC_SF_AK4PFchs.txt");
-    edm::FileInPath def_scaleFile = edm::FileInPath("flashgg/bbggTools/data/JetSystematics/Summer16_23Sep2016V4_MC_Uncertainty_AK4PFchs.txt");
-
-    std::vector<std::string> def_myTriggers;
-
-    std::string def_fileName;
-
-    def_bTagType = "pfCombinedInclusiveSecondaryVertexV2BJetTags";
-    def_fileName =  "out.root";
-
-    def_bRegFileLeading = edm::FileInPath("flashgg/bbggTools/data/BRegression/2016/BDTG_16plus3_jetGenJet_nu_80X_leading_9_13.weights.xml");
-    def_bRegFileSubLeading = edm::FileInPath("flashgg/bbggTools/data/BRegression/2016/BDTG_16plus3_jetGenJet_nu_80X_trailing_9_13.weights.xml");
-
-    //sigmaMoverM
-    def_doDecorr=0;
-    def_sigmaMdecorrFile = edm::FileInPath("flashgg/Taggers/data/diphoMVA_sigmaMoMdecorr_split_Mgg40_180.root");
-
-    //Get photon ID thresholds from config file
-    phoIDlooseEB = iConfig.getUntrackedParameter<std::vector<double > >("phoIDlooseEB");
-    phoIDlooseEE = iConfig.getUntrackedParameter<std::vector<double > >("phoIDlooseEE");
-    phoIDmediumEB = iConfig.getUntrackedParameter<std::vector<double > >("phoIDmediumEB");
-    phoIDmediumEE = iConfig.getUntrackedParameter<std::vector<double > >("phoIDmediumEE");
-    phoIDtightEB = iConfig.getUntrackedParameter<std::vector<double > >("phoIDtightEB");
-    phoIDtightEE = iConfig.getUntrackedParameter<std::vector<double > >("phoIDtightEE");
-    phoISOlooseEB = iConfig.getUntrackedParameter<std::vector<double > >("phoISOlooseEB");
-    phoISOlooseEE = iConfig.getUntrackedParameter<std::vector<double > >("phoISOlooseEE");
-    phoISOmediumEB = iConfig.getUntrackedParameter<std::vector<double > >("phoISOmediumEB");
-    phoISOmediumEE = iConfig.getUntrackedParameter<std::vector<double > >("phoISOmediumEE");
-    phoISOtightEB = iConfig.getUntrackedParameter<std::vector<double > >("phoISOtightEB");
-    phoISOtightEE = iConfig.getUntrackedParameter<std::vector<double > >("phoISOtightEE");
-    nhCorrEB = iConfig.getUntrackedParameter<std::vector<double > >("nhCorrEB");
-    nhCorrEE = iConfig.getUntrackedParameter<std::vector<double > >("nhCorrEE");
-    phCorrEB = iConfig.getUntrackedParameter<std::vector<double > >("phCorrEB");
-    phCorrEE = iConfig.getUntrackedParameter<std::vector<double > >("phCorrEE");
-
-    is2016 = iConfig.getUntrackedParameter<unsigned int>("is2016", def_is2016);
-
-    BenchNum = iConfig.getUntrackedParameter<unsigned int>("benchmark", 0);
-
-    //photon selection parameters
-    ph_pt     = iConfig.getUntrackedParameter<std::vector<double > >("PhotonPtOverDiPhotonMass", def_ph_pt);
-    ph_eta    = iConfig.getUntrackedParameter<std::vector<double > >("PhotonEta", def_ph_eta);
-    ph_r9     = iConfig.getUntrackedParameter<std::vector<double > >("PhotonR9", def_ph_r9);
-    ph_elVeto = iConfig.getUntrackedParameter<std::vector<int > >("PhotonElectronVeto", def_ph_elVeto);
-    ph_doelVeto = iConfig.getUntrackedParameter<std::vector<int > >("PhotonDoElectronVeto", def_ph_doelVeto);
-    ph_doID   = iConfig.getUntrackedParameter<std::vector<int > >("PhotonDoID", def_ph_doID);
-    ph_whichID   = iConfig.getUntrackedParameter<std::vector<std::string > >("PhotonWhichID", def_ph_whichID);
-    ph_doISO  = iConfig.getUntrackedParameter<std::vector<int > >("PhotonDoISO", def_ph_doISO);
-    ph_whichISO  = iConfig.getUntrackedParameter<std::vector<std::string > >("PhotonWhichISO", def_ph_whichISO);
-    diph_pt   = iConfig.getUntrackedParameter<std::vector<double > >("DiPhotonPt", def_diph_pt);
-    diph_eta  = iConfig.getUntrackedParameter<std::vector<double > >("DiPhotonEta", def_diph_eta);
-    diph_mass = iConfig.getUntrackedParameter<std::vector<double > >("DiPhotonMassWindow", def_diph_mass);
-    diph_onlyfirst = iConfig.getUntrackedParameter<unsigned int>("DiPhotonOnlyFirst", def_diph_onlyfirst);
-    nPromptPhotons = iConfig.getUntrackedParameter<unsigned int>("nPromptPhotons", def_nPromptPhotons);
-    doDoubleCountingMitigation = iConfig.getUntrackedParameter<unsigned int>("doDoubleCountingMitigation", def_doDoubleCountingMitigation);
-    doPhotonCR = iConfig.getUntrackedParameter<unsigned int>("doPhotonCR", def_doPhotonCR);
-    DoMVAPhotonID = iConfig.getUntrackedParameter<unsigned int>("DoMVAPhotonID", def_DoMVAPhotonID);
-    MVAPhotonID = iConfig.getUntrackedParameter<std::vector<double>>("MVAPhotonID", def_MVAPhotonID);
-    PhotonMVAEstimator = iConfig.getUntrackedParameter<std::string>("PhotonMVAEstimator", def_PhotonMVAEstimator);
-    doPhotonScale = iConfig.getUntrackedParameter<int>("doPhotonScale", def_doPhotonScale);
-    doPhotonExtraScale = iConfig.getUntrackedParameter<int>("doPhotonExtraScale", def_doPhotonExtraScale);
-    doPhotonSmearing = iConfig.getUntrackedParameter<int>("doPhotonSmearing", def_doPhotonSmearing);
-    PhotonScaleFile = iConfig.getUntrackedParameter<std::string >("PhotonCorrectionFile", def_PhotonScaleFile);
-    doCustomPhotonMVA = iConfig.getUntrackedParameter<unsigned int>("doCustomPhotonMVA", def_doCustomPhotonMVA);
-
-    //jet selection parameters
-    jt_pt     = iConfig.getUntrackedParameter<std::vector<double > >("JetPtOverDiJetMass", def_jt_pt);
-    jt_eta    = iConfig.getUntrackedParameter<std::vector<double > >("JetEta", def_jt_eta);
-    jt_drPho  = iConfig.getUntrackedParameter<std::vector<double > >("JetDrPho", def_jt_drPho);
-    jt_bDis   = iConfig.getUntrackedParameter<std::vector<double > >("JetBDiscriminant", def_jt_bDis);
-    jt_doPU   = iConfig.getUntrackedParameter<std::vector<int > >("JetDoPUID", def_jt_doPU);
-    jt_doID   = iConfig.getUntrackedParameter<std::vector<int > >("JetDoID", def_jt_doID);
-    n_bJets = iConfig.getUntrackedParameter<unsigned int>("n_bJets", def_n_bJets);
-    dijt_pt   = iConfig.getUntrackedParameter<std::vector<double > >("DiJetPt", def_dijt_pt);
-    dijt_eta  = iConfig.getUntrackedParameter<std::vector<double > >("DiJetEta", def_dijt_eta);
-    dijt_mass = iConfig.getUntrackedParameter<std::vector<double > >("DiJetMassWindow", def_dijt_mass);
-    doJetRegression = iConfig.getUntrackedParameter<unsigned int>("doJetRegression", def_doJetRegression);
-    bTagType = iConfig.getUntrackedParameter<std::string>( "bTagType", def_bTagType );
-    bRegFileLeading = iConfig.getUntrackedParameter<edm::FileInPath>("bRegFileLeading", def_bRegFileLeading);
-    bRegFileSubLeading = iConfig.getUntrackedParameter<edm::FileInPath>("bRegFileSubLeading", def_bRegFileSubLeading);
-    jetSmear = iConfig.getUntrackedParameter<int>("jetSmear", def_jetSmear);
-    jetScale = iConfig.getUntrackedParameter<int>("jetScale", def_jetScale);
-
-    //extra selection
-    cand_pt 	= iConfig.getUntrackedParameter<std::vector<double > >("CandidatePt", def_cand_mass);
-    cand_eta 	= iConfig.getUntrackedParameter<std::vector<double > >("CandidateEta", def_cand_mass);
-    cand_mass = iConfig.getUntrackedParameter<std::vector<double > >("CandidateMassWindow", def_cand_mass);
-    dr_cands  = iConfig.getUntrackedParameter<std::vector<double > >("CandidatesDeltaR", def_dr_cands);
-
-
-    fileName = iConfig.getUntrackedParameter<std::string>( "OutFileName", def_fileName );
-
-    //sigmaMOverM
-    doDecorr = iConfig.getUntrackedParameter<unsigned int>("doSigmaMdecorr", def_doDecorr);
-    sigmaMdecorrFile = iConfig.getUntrackedParameter<edm::FileInPath>("sigmaMdecorrFile", def_sigmaMdecorrFile); 
-
-    addNonResMVA = iConfig.getUntrackedParameter<unsigned int>("addNonResMVA", def_addNonResMVA);
-    NonResMVAWeights_LowMass = iConfig.getUntrackedParameter<edm::FileInPath>("NonResMVAWeights_LowMass", def_NonResMVAWeights_LowMass);
-    NonResMVAWeights_HighMass = iConfig.getUntrackedParameter<edm::FileInPath>("NonResMVAWeights_HighMass", def_NonResMVAWeights_HighMass);
-    ResMVAWeights_LowMass = iConfig.getUntrackedParameter<edm::FileInPath>("ResMVAWeights_LowMass", def_ResMVAWeights_LowMass);
-    ResMVAWeights_HighMass = iConfig.getUntrackedParameter<edm::FileInPath>("ResMVAWeights_HighMass", def_ResMVAWeights_HighMass);
-    NonResMVAVars = iConfig.getUntrackedParameter<std::vector<std::string > >("NonResMVAVars", NonResMVAVars);
-
-    //tokens and labels
-    genInfo_ = iConfig.getUntrackedParameter<edm::InputTag>( "genInfo", edm::InputTag("generator") );
-    genInfoToken_ = consumes<GenEventInfoProduct>( genInfo_ );
-    myTriggers = iConfig.getUntrackedParameter<std::vector<std::string> >("myTriggers", def_myTriggers);
-    triggerToken_ = consumes<edm::TriggerResults>( iConfig.getParameter<edm::InputTag>( "triggerTag" ) );
-//    METToken_ = consumes<edm::View<pat::MET> >(iConfig.getParameter<edm::InputTag>("metTag"));
-    METToken_ = consumes<edm::View<flashgg::Met> >( iConfig.getParameter<edm::InputTag> ( "metTag" ) );
-    randomLabel = iConfig.getUntrackedParameter<std::string>("randomLabel", def_randomLabel);
-
-    resFile = iConfig.getUntrackedParameter<edm::FileInPath>("resFile", def_resFile);
-    sfFile = iConfig.getUntrackedParameter<edm::FileInPath>("sfFile", def_sfFile);
-    scaleFile = iConfig.getUntrackedParameter<edm::FileInPath>("scaleFile", def_scaleFile);
-
-    getNonResGenInfo = iConfig.getUntrackedParameter<bool>("getNonResGenInfo", false);
-
-    tools_.SetCut_DoMVAPhotonID(DoMVAPhotonID);
-    tools_.SetCut_MVAPhotonID(MVAPhotonID);
-    tools_.SetCut_PhotonMVAEstimator(PhotonMVAEstimator);
-
-    tools_.SetPhotonCR(doPhotonCR);
-    tools_.SetCut_PhotonPtOverDiPhotonMass( ph_pt );
-    tools_.SetCut_PhotonEta( ph_eta );
-    tools_.SetCut_PhotonDoID( ph_doID );
-    tools_.SetCut_PhotonDoISO( ph_doISO );
-    tools_.SetCut_PhotonR9( ph_r9 );
-    tools_.SetCut_PhotonElectronVeto( ph_elVeto );
-    tools_.SetCut_PhotonDoElectronVeto( ph_doelVeto );
-    tools_.SetCut_DiPhotonPt( diph_pt );
-    tools_.SetCut_DiPhotonEta( diph_eta );
-    tools_.SetCut_DiPhotonMassWindow( diph_mass );
-    tools_.SetCut_DiPhotonOnlyFirst( diph_onlyfirst );
-    tools_.SetCut_JetPt( jt_pt );
-    tools_.SetCut_JetEta( jt_eta );
-    tools_.SetCut_JetBDiscriminant( jt_bDis );
-    tools_.SetCut_JetDrPho( jt_drPho  );
-    tools_.SetCut_JetDoPUID( jt_doPU );
-    tools_.SetCut_JetDoID( jt_doID );
-    tools_.SetCut_n_bJets( n_bJets );
-    tools_.SetCut_DiJetPt( dijt_pt );
-    tools_.SetCut_DiJetEta( dijt_eta );
-    tools_.SetCut_DiJetMassWindow( dijt_mass );
-    tools_.SetCut_CandidateMassWindow( cand_mass );
-    tools_.SetCut_CandidatePt( cand_pt );
-    tools_.SetCut_CandidateEta( cand_eta );
-    tools_.SetCut_bTagType( bTagType );
-    tools_.SetCut_CandidatesDeltaR( dr_cands );
-
-    std::map<int, vector<double> > phoIDloose;
-    phoIDloose[0] = phoIDlooseEB;
-    phoIDloose[1] = phoIDlooseEE;
-    tools_.SetCut_phoIDloose(phoIDloose);
-
-    std::map<int, vector<double> > phoIDmedium;
-    phoIDmedium[0] = phoIDmediumEB;
-    phoIDmedium[1] = phoIDmediumEE;
-    tools_.SetCut_phoIDmedium(phoIDmedium);
-
-    std::map<int, vector<double> > phoIDtight;
-    phoIDtight[0] = phoIDtightEB;
-    phoIDtight[1] = phoIDtightEE;
-    tools_.SetCut_phoIDtight(phoIDtight);
-
-    std::map<int, vector<double> > phoISOloose;
-    phoISOloose[0] = phoISOlooseEB;
-    phoISOloose[1] = phoISOlooseEE;
-    tools_.SetCut_phoISOloose(phoISOloose);
-
-    std::map<int, vector<double> > phoISOmedium;
-    phoISOmedium[0] = phoISOmediumEB;
-    phoISOmedium[1] = phoISOmediumEE;
-    tools_.SetCut_phoISOmedium(phoISOmedium);
-
-    std::map<int, vector<double> > phoISOtight;
-    phoISOtight[0] = phoISOtightEB;
-    phoISOtight[1] = phoISOtightEE;
-    tools_.SetCut_phoISOtight(phoISOtight);
-
-    std::map<int, vector<double> > nhCorr;
-    nhCorr[0] = nhCorrEB;
-    nhCorr[1] = nhCorrEE;
-    tools_.SetCut_nhCorr(nhCorr);
-
-    std::map<int, vector<double> > phCorr;
-    phCorr[0] = phCorrEB;
-    phCorr[1] = phCorrEE;
-    tools_.SetCut_phCorr(phCorr);
-
-    tools_.SetCut_phoWhichID(ph_whichID);
-    tools_.SetCut_phoWhichISO(ph_whichISO);
-
-    std::vector<double> ptRes = iConfig.getUntrackedParameter<std::vector<double>>( "ptRes");
-    std::vector<double> etaRes = iConfig.getUntrackedParameter<std::vector<double>>( "etaRes");
-    std::vector<double> phiRes = iConfig.getUntrackedParameter<std::vector<double>>( "phiRes");
-    std::vector<double> etaBins = iConfig.getUntrackedParameter<std::vector<double>>("etaBins");
-
-    kinFit_ = bbggKinFit();
-    kinFit_.SetJetResolutionParameters(etaBins, ptRes, etaRes, phiRes);
-    jetSys_.SetupScale(scaleFile.fullPath().data());
-
-    for (unsigned i = 0 ; i < inputTagJets_.size() ; i++) {
-        auto token = consumes<edm::View<flashgg::Jet> >(inputTagJets_[i]);
-        tokenJets_.push_back(token);
-    }
-
-    if(doJetRegression) {
-        std::cout << "Regressing jets with the following weights files: " << std::endl;
-        std::cout << "\t Leading jet: " << bRegFileLeading.fullPath().data() << std::endl;
-        std::cout << "\t SubLeading jet: " << bRegFileSubLeading.fullPath().data() << std::endl;
-        jetReg_.SetupRegression("BDTG method",  bRegFileLeading.fullPath().data(), bRegFileSubLeading.fullPath().data());
-    }
-
-    //Prepare scales and smearings
-    if (doPhotonSmearing > -10 || doPhotonScale > -10) {
-        phoCorr_.SetupCorrector(PhotonScaleFile);
-        phoCorr_.setRandomLabel(std::string("rnd_g_E"));
-    }
-
-    if(addNonResMVA) {
-        nonresMVA_.SetupNonResMVA( NonResMVAWeights_LowMass.fullPath().data(), NonResMVAWeights_HighMass.fullPath().data(), NonResMVAVars);
-        resMVA_.SetupNonResMVA( ResMVAWeights_LowMass.fullPath().data(), ResMVAWeights_HighMass.fullPath().data(), NonResMVAVars);
-    }
-
-    if (doDecorr){
-      TFile* f_decorr = new TFile((sigmaMdecorrFile.fullPath()).c_str(), "READ");
-      h_decorrEBEB_ = (TH2D*)f_decorr->Get("hist_sigmaM_M_EBEB"); 
-      h_decorrNotEBEB_ = (TH2D*)f_decorr->Get("hist_sigmaM_M_notEBEB");
-      if(h_decorrEBEB_ && h_decorrNotEBEB_){
-	transfEBEB_ = new DecorrTransform(h_decorrEBEB_ , 125., 1, 0);
-	transfNotEBEB_ = new DecorrTransform(h_decorrNotEBEB_ , 125., 1, 0);
-      }
-      else {
-	throw cms::Exception( "Configuration" ) << "The file "<<sigmaMdecorrFile.fullPath()<<" provided for sigmaM/M decorrelation does not contain the expected histograms."<<std::endl;
-      }
-    }
-
-    if (getNonResGenInfo){
-      std::string fileNameWei1 = edm::FileInPath("flashgg/bbggTools/data/NonResReWeight/weights_v1_1507_points.root").fullPath();
-      std::string fileNameWei2 = edm::FileInPath("flashgg/bbggTools/data/NonResReWeight/weights_v3_bench12_points.root").fullPath();
-      NRW->LoadHists(fileNameWei1, fileNameWei2);
-      for (UInt_t n=0; n<13; n++) 
-	NRWeights[n]=1;
-
-      // Check that provided benchmark number is in range 1-12
-      if (BenchNum>12){
-	std::cout<<"\t ** warning** Provided BenchNum is out of range (1-12): "<<BenchNum<<std::endl;
-	std::cout<<"I'm gonna set it to 0 to avoid problems"<<std::endl;
-	BenchNum=0;
-      }
-    }
-
-    std::cout << "Parameters initialized... \n ############ Doing selection tree!" <<  std::endl;
-
-}
-
-
-bbggTree::~bbggTree()
-{
-
-    // do anything here that needs to be done at desctruction time
-    // (e.g. close files, deallocate resources etc.)
-
-}
-
-
-//
-// member functions
-//
-
-// ------------ method called for each event  ------------
-void
-    bbggTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-
-    if( EvtCount%100 == 0 && !DEBUG) std::cout << "[bbggTree::analyze] Analyzing event number: " << EvtCount << std::endl;
-    if (DEBUG) std::cout << "[bbggTree::analyze] Analyzing event number: " << EvtCount << std::endl;
-    globVar_->fill(iEvent);
-
-    EvtCount++;
-    using namespace edm;
-    leadingPhotonID.clear();
-    leadingPhotonISO.clear();
-    subleadingPhotonID.clear();
-    subleadingPhotonISO.clear();
-
-    leadingjets.clear();
-    subleadingjets.clear();
-    dijets.clear();
-    leadingjets_bDiscriminant.clear();
-    subleadingjets_bDiscriminant.clear();
-    leadingjets_partonID.clear();
-    subleadingjets_partonID.clear();
-    leadingJets_DRleadingPho.clear();
-    leadingJets_DRsubleadingPho.clear();
-    leadingJets_DRleadingPho.clear();
-    subleadingJets_DRsubleadingPho.clear();
-    Jets_minDRPho.clear();
-    Jets_DR.clear();
-    DiJets_DRDiPho.clear();
-    isSignal = 0;
-    isPhotonCR = 0;
-    CosThetaStar = -999;
-    CosThetaStar_CS = -999;
-    CosTheta_bb = -999;
-    CosTheta_gg = -999;
-    CosTheta_bbgg = -999;
-    CosTheta_ggbb = -999;
-    Phi0 = -999;
-    Phi1 = -999;
-    genTotalWeight = 1.0;
-    leadingPhotonR9full5x5 = -999;
-    subleadingPhotonR9full5x5 = -999;
-    customLeadingPhotonMVA = -999;
-    customSubLeadingPhotonMVA = -999;
-    leadingPhotonHasGain1 = -10;
-    leadingPhotonHasGain6 = -10;
-    subLeadingPhotonHasGain1 = -10;
-    subLeadingPhotonHasGain6 = -10;
-    HHTagger = -10;
-    HHTagger_LM = -10;
-    HHTagger_HM = -10;
-    ResHHTagger = -10;
-    ResHHTagger_LM = -10;
-    ResHHTagger_HM = -10;
-
-    dEta_VBF = -999; 
-    Mjj_VBF = 0;
-
-    diphotonCandidate.SetPxPyPzE(0,0,0,0);// = diphoCand->p4();
-    leadingPhoton.SetPxPyPzE(0,0,0,0);// = diphoCand->leadingPhoton()->p4();
-    subleadingPhoton.SetPxPyPzE(0,0,0,0);// = diphoCand->subLeadingPhoton()->p4();
-    leadingJet.SetPxPyPzE(0,0,0,0);// = LeadingJet->p4();
-    leadingJet_bDis = 0;// = LeadingJet->bDiscriminator(bTagType);
-    leadingJet_flavour = 0;// = LeadingJet->partonFlavour();
-    subleadingJet.SetPxPyPzE(0,0,0,0);// = SubLeadingJet->p4();
-    subleadingJet_bDis = 0;//SubLeadingJet->bDiscriminator(bTagType);
-    subleadingJet_flavour = 0;//SubLeadingJet->partonFlavour();
-    dijetCandidate.SetPxPyPzE(0,0,0,0);// = leadingJet + subleadingJet;
-    diHiggsCandidate.SetPxPyPzE(0,0,0,0);// = diphotonCandidate + dijetCandidate;
-    leadingJet_CSVv2 = 0;
-    leadingJet_cMVA = 0;
-    subleadingJet_CSVv2 = 0;
-    subleadingJet_cMVA = 0;
-
-    leadingJet_VBF.SetPxPyPzE(0,0,0,0);// = LeadingJet->p4();
-    subleadingJet_VBF.SetPxPyPzE(0,0,0,0);// = LeadingJet->p4();
-
-    
-
-    gen_mHH = 0;
-    gen_cosTheta = -99;
-
-    gen_NRW = 1;
-
-    //gen jets info
-    leadingJet_genPtb=-999; leadingJet_genPartonidb=-999; leadingJet_genFlavourb=-999;  leadingJet_genPartonFlavourb=-999; leadingJet_genHadronFlavourb=-999; leadingJet_genNbHadronsb=-999; leadingJet_genNcHadronsb=-999;
-    leadingJet_cCSVb=-999; leadingJet_DeepCSVbb=-999; leadingJet_DeepCSVcb=-999; leadingJet_DeepCSVlb=-999; leadingJet_DeepCSVbbb=-999; leadingJet_DeepCSVccb=-999; leadingJet_cMVAv2b=-999;  
-
-    subleadingJet_genPtb=-999; subleadingJet_genPartonidb=-999; subleadingJet_genFlavourb=-999;  subleadingJet_genPartonFlavourb=-999; subleadingJet_genHadronFlavourb=-999; subleadingJet_genNbHadronsb=-999; subleadingJet_genNcHadronsb=-999;
-    subleadingJet_cCSVb=-999; subleadingJet_DeepCSVbb=-999; subleadingJet_DeepCSVcb=-999; subleadingJet_DeepCSVlb=-999; subleadingJet_DeepCSVbbb=-999; subleadingJet_DeepCSVccb=-999; subleadingJet_cMVAv2b=-999;  
-
-
-    //Get Jets collections!
-    JetCollectionVector theJetsCols( inputTagJets_.size() );
-    for( size_t j = 0; j < inputTagJets_.size(); ++j ) {
-        iEvent.getByToken( tokenJets_[j], theJetsCols[j] );
-    }
-
-    if (DEBUG) std::cout << "Number of jet collections!!!! " << theJetsCols.size() << std::endl;
-
-    Handle<View<flashgg::DiPhotonCandidate> > diPhotons;
-    iEvent.getByToken( diPhotonToken_, diPhotons );
 
     const double rhoFixedGrd = globVar_->valueOf(globVar_->indexOf("rho"));
     tools_.setRho(rhoFixedGrd);
@@ -862,6 +876,17 @@ void
     vector<pair<flashgg::DiPhotonCandidate, int> > KinDiPhotonWithID = tools_.EvaluatePhotonIDs( KinDiPhoton, doCustomPhotonMVA );
     vector<flashgg::DiPhotonCandidate> SignalDiPhotons = tools_.GetDiPhotonsInCategory( KinDiPhotonWithID, 2 );
     vector<flashgg::DiPhotonCandidate> CRDiPhotons = tools_.GetDiPhotonsInCategory( KinDiPhotonWithID, 1 );
+
+     //needed for diphoton mva
+    if(tools_.indexSel_>-1){
+      Handle<View<flashgg::DiPhotonMVAResult> > mvaResults;
+      iEvent.getByToken( mvaResultToken_, mvaResults );
+      edm::Ptr<flashgg::DiPhotonMVAResult> mvares = mvaResults->ptrAt(tools_.indexSel_);//get mva of selected diphoton
+     diphoMVA=mvares->result;
+    }else{
+      diphoMVA=-999;
+    }
+
 
     //Select diphoton candidate
     flashgg::DiPhotonCandidate diphoCandidate;
@@ -1305,6 +1330,7 @@ bbggTree::beginJob()
     tree->Branch("subleadingPhotonSigOverE", &subleadingPhotonSigOverE, "subleadingPhotonSigOverE/F");
     tree->Branch("sigmaMOverM", &sigmaMOverM, "sigmaMOverM/F");
     tree->Branch("sigmaMOverMDecorr", &sigmaMOverMDecorr, "sigmaMOverMDecorr/F");
+    tree->Branch("diphoMVA", &diphoMVA, "diphoMVA/F");
     tree->Branch("diphotonCandidate", &diphotonCandidate);
     tree->Branch("nPromptInDiPhoton", &nPromptInDiPhoton, "nPromptInDiPhoton/I");
     tree->Branch("leadingJet", &leadingJet);

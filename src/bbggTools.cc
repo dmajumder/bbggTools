@@ -708,6 +708,7 @@ vector<flashgg::DiPhotonCandidate> bbggTools::GetDiPhotonsInCategory( vector<pai
 
 vector<pair<flashgg::DiPhotonCandidate, int > > bbggTools::EvaluatePhotonIDs( vector<flashgg::DiPhotonCandidate> diphoCol, unsigned int doCustomID)
 {
+  indexSel_=-1;
    vector<pair<flashgg::DiPhotonCandidate, int > > PreselDiPhotons;
     //Begin DiPhoton Loop/Selection -----------------------------------------------------------
    for( unsigned int diphoIndex = 0; diphoIndex < diphoCol.size(); diphoIndex++ )
@@ -783,6 +784,9 @@ vector<pair<flashgg::DiPhotonCandidate, int > > bbggTools::EvaluatePhotonIDs( ve
          //Category = 2: 2 id'ed photons (signal region)
          int Category = pho_ids[0] + pho_ids[1];
          PreselDiPhotons.push_back(make_pair(dipho, Category));
+	 if (Category == 2){
+	     indexSel_=diphoIndex;
+	   }
      }
      return PreselDiPhotons;
 }

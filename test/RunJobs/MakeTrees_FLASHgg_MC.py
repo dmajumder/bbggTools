@@ -115,7 +115,7 @@ if customize.doDoubleCountingMitigation is False:
 
 process.bbggtree.doSigmaMdecorr = 1
 process.bbggtree.sigmaMdecorrFile = cms.untracked.FileInPath("flashgg/Taggers/data/diphoMVA_sigmaMoMdecorr_split_Mgg40_180.root")
-
+process.bbggtree.MVAResultTag = cms.InputTag('flashggDiPhotonMVA')
 
 import flashgg.Taggers.flashggTags_cff as flashggTags
 process.load("flashgg.Taggers.flashggTags_cff")
@@ -127,8 +127,12 @@ process.load("flashgg.Taggers.flashggUpdatedIdMVADiPhotons_cfi")
 import flashgg.Taggers.flashggPreselectedDiPhotons_cfi as flashggPreSelection
 process.load("flashgg.Taggers.flashggPreselectedDiPhotons_cfi")
 
+import flashgg.Taggers.flashggDiPhotonMVA_cfi as flashggDiPhotonMVA
+process.load("flashgg.Taggers.flashggDiPhotonMVA_cfi")
+
 process.p = cms.Path( flashggPhotonMVA.flashggUpdatedIdMVADiPhotons
                       * flashggPreSelection.flashggPreselectedDiPhotons
+		      * flashggDiPhotonMVA.flashggDiPhotonMVA
                       * flashggTags.flashggUnpackedJets
                       * process.bbggtree )
 

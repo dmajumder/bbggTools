@@ -33,6 +33,7 @@ public:
     typedef std::vector<edm::Handle<edm::View<flashgg::Jet> > > JetCollectionVector;
 
     //Photon selection
+    int indexSel_;
     std::vector<flashgg::DiPhotonCandidate> DiPhotonKinematicSelection(vector<flashgg::DiPhotonCandidate> diphoCol, bool DoMassCut = 0);
     std::vector<flashgg::DiPhotonCandidate> DiPhotonIDSelection( std::vector<flashgg::DiPhotonCandidate> diphoCol);
     std::vector<flashgg::DiPhotonCandidate> GetDiPhotonsInCategory( std::vector<std::pair<flashgg::DiPhotonCandidate, int > > SelectedDiPhotons, int category );
