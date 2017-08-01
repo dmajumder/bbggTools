@@ -96,8 +96,8 @@ for plot in plots:
             locName = thisName+str(i)
             locHist = thisHist.Clone(locName)
             thisWeightedCut = weightedCut
-            if "QCD" in thisTreeLoc:
-		    thisWeightedCut = TCut(weightedcut.replace("isSignal == 1", "isSignal == 0"))
+#            if "QCD" in thisTreeLoc:
+#		    thisWeightedCut = TCut(weightedcut.replace("isSignal == 1", "isSignal == 0"))
             Trees[thisTreeLoc].Draw(plot[1]+">>"+locName, thisWeightedCut)
 
 	    if not doShape and useJsonWeighting:

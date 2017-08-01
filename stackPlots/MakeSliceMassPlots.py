@@ -81,7 +81,60 @@ for plot in plots:
 
     modelHist = TH1F(plot[0]+"_hist", "", plot[3], plot[4], plot[5])
 
-    backgroundHists = []
+#    for signal in datasets["signal"]:
+#        print signal
+#	print "file:"
+#	thisTreeLoc = signal["file"]
+#	skipEmptyFile = False
+#	if thisTreeLoc not in Trees:
+#	    Trees[thisTreeLoc] = TChain("bbggSelectionTree")
+#	    Trees[thisTreeLoc].AddFile(signalLocation+thisTreeLoc)
+#	    SetOwnership( Trees[thisTreeLoc], True )
+#	thisWeightedCut = weightedCut
+#	myCut = thisWeightedCut
+#	
+#	Histos = []
+#	Max = [] 
+#        #do plots in bins of mass
+#	for j in range(0,5):
+#	    thisName = plot[0]+"_hist"+"_"+signal["name"]
+#	    thisHist = modelHist.Clone(thisName)
+#	    thisHist.SetLineColor(colors[j])
+#	    locName = thisName+str(j)
+#	    locHist = thisHist.Clone(locName)
+#
+#
+#	    massCut = "diphotonCandidate.M()>"+str(100+j*20)+" && diphotonCandidate.M() <"+str(100+(j+1)*20)
+#	    myCut += massCut
+#	    Trees[thisTreeLoc].Draw(plot[1]+">>"+locName, myCut)
+#
+#	    myCut = TCut(myCut.GetTitle().replace("&&(diphotonCandidate.M()>"+str(100+j*20)+" && diphotonCandidate.M() <"+str(100+(j+1)*20)+")",""))
+#	    Histos.append(locHist)
+#	    if locHist.Integral()!=0:
+#                    Max.append(locHist.GetMaximum()/locHist.Integral())
+#
+#	cs = TCanvas(plot[0]+"_"+signal["name"],plot[0]+"_"+signal["name"], 800, 600)
+#        cs.cd()
+#	histCount=0
+#	for histo in Histos:
+#		histo.Sumw2()
+#                if histo.Integral()!=0:
+#                    histo.Scale(1./histo.Integral())
+#                if histCount == 0: 
+#                    histo.GetYaxis().SetRangeUser(0,max(Max)*1.1)
+#                    histo.GetXaxis().SetTitle(plot[2])
+#                    histo.Draw("HistE")
+#                    histCount+=1
+#                else:
+#                    histo.Draw("sameHistE")
+#            
+#	cs.SaveAs(dirPrefix+dirSuffix+"/"+plot[0]+"_"+signal["name"]+".png")
+#        cs.SaveAs(dirPrefix+dirSuffix+"/"+plot[0]+"_"+signal["name"]+".pdf")
+#	cs.Clear()
+
+
+
+
     for background in datasets["background"]:
         if not addbbH and 'bbH' in background: continue
 	if not addHiggs and 'VH' in background: continue

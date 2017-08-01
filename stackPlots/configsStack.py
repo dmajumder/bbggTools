@@ -38,7 +38,8 @@ lumi = 35870#pb
 #lumi = 0.35870#pb
 MCSF = 1.0
 #List of datasets to be used (cross section information defined there)
-data_file = open("datasets/datasets80X_Moriond_onlyNRSM.json")
+#data_file = open("datasets/datasets80X_Moriond_onlyNRSM.json")
+data_file = open("datasets/datasets80X_Moriond_onlyNRSM_separateGJ.json")
 
 #number of bins in histograms
 nbin = 30
@@ -53,15 +54,15 @@ dr_hh="sqrt( (diphotonCandidate.Eta() - dijetCandidate.Eta())*(diphotonCandidate
 
 #plots will be saved in dirName
 prefix = ""
-dirSuffix = "20170602_stack"
+dirSuffix = "20170717_stack"
 dirPrefix = "/afs/cern.ch/user/m/micheli/www/plots/HHBBGG/"
 dirName = dirPrefix + dirSuffix
 
 #Location of root files for each invidivual samples. Name of the root files is defined in datasets/datasets(76).json
-higgsoLocation="/afs/cern.ch/user/m/micheli/scratch1/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/test/RunJobs/Background_20170526/"
-bkgLocation="/afs/cern.ch/user/m/micheli/scratch1/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/test/RunJobs/Background_20170526/"
-dataLocation="/afs/cern.ch/user/m/micheli/scratch1/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/test/RunJobs/Data_20170526/"
-signalLocation="/afs/cern.ch/user/m/micheli/scratch1/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/test/RunJobs/HHbbggSignal_20170526/"
+higgsoLocation="/afs/cern.ch/user/m/micheli/scratch1/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/test/RunJobs/Background_20170620/"
+bkgLocation="/afs/cern.ch/user/m/micheli/scratch1/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/test/RunJobs/Background_20170620/"
+dataLocation="/afs/cern.ch/user/m/micheli/scratch1/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/test/RunJobs/Data_20170620/"
+signalLocation="/afs/cern.ch/user/m/micheli/scratch1/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/test/RunJobs/HHbbggSignal_20170620/"
 
 #plots to be made
 plots = []
@@ -72,9 +73,11 @@ plots = []
 
 
 plots.append(["diPho_Mass", "diphotonCandidate.M()", "M(#gamma#gamma) [GeV]", 80, 100, 180])
-plots.append(["diJet_Mass", "dijetCandidate.M()", "M(jj) [GeV]", 40, 60, 180])
+plots.append(["diJet_Mass", "dijetCandidate.M()", "M(jj) [GeV]", 36, 70, 178])
+plots.append(["leadingPhoton_pt", "leadingPhoton.Pt()", "p_{T}(#gamma_{1}) [GeV]", 60, 30, 300])
+#plots.append(["leadingPhoton_pt_overM", "leadingPhoton.Pt()/diphotonCandidate.M()", "p_{T}(#gamma1)/M_{#gamma#gamma}", nbin, 0, 1] )
 
-
+'''
 
 
 plots.append(["PhotonIDMVA2", "(customSubLeadingPhotonIDMVA)", "SubLeading Photon Id MVA", nbin, -1, 1])
@@ -129,11 +132,12 @@ plots.append(["leadingPhotonSigOverE", "leadingPhotonSigOverE", "Leading Photon 
 plots.append(["subleadingPhotonSigOverE", "subleadingPhotonSigOverE", "Subleading Photon #sigma_{E}/E", nbin, 0, 0.1])
 plots.append(["sigmaMOverMDecorr", "sigmaMOverMDecorr", "#sigma_{M_{decorr}}/M", nbin, 0, 0.1])
 
-
+'''
 
 #cuts to be used to make plots
 Cut = " isSignal && diphotonCandidate.M() > 100 && diphotonCandidate.M() < 180 "
-Cut += " && dijetCandidate.M() > 60 && dijetCandidate.M() < 180"
+Cut += " && dijetCandidate.M() > 70 && dijetCandidate.M() < 180"
+#Cut += " && diphoMVA>-0.405"
 #Cut += " && (((leadingJet_bDis > 0.8 && subleadingJet_bDis > 0.8) && (leadingJet_bDis < 0.92))+((leadingJet_bDis > 0.8 && subleadingJet_bDis > 0.8) && (subleadingJet_bDis < 0.92)))"
 #Cut += " && (diHiggsCandidate.M() - dijetCandidate.M() + 125) < 400"
 #Cut += " && (diHiggsCandidate.M() - dijetCandidate.M() + 125.) > 280 && (diHiggsCandidate.M() - dijetCandidate.M() + 125.) < 320"

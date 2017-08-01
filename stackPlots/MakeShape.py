@@ -42,8 +42,6 @@ if (doPUweight):
 weightedCut = TCut(weightedcut)
 cut_data = TCut(Cut)
 cut_signal = TCut(weightedcut.replace("!((diphotonCandidate.M() > 115 && diphotonCandidate.M() < 135))", "(1>0)"))
-print "original::::::::::::"
-print cut_signal
 
 for plot in plots:
     Histos = []
