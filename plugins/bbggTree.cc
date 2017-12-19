@@ -66,6 +66,7 @@ Implementation:
 #include "flashgg/bbggTools/interface/bbggJetSystematics.h"
 #include "flashgg/bbggTools/interface/bbggPhotonCorrector.h"
 #include "flashgg/bbggTools/interface/bbggNonResMVA.h"
+#include "flashgg/bbggTools/interface/bbggNonResMVA2017.h"
 #include "flashgg/bbggTools/interface/NonResWeights.h"
 
 
@@ -109,6 +110,7 @@ private:
     bbggJetSystematics jetSys_;
     bbggPhotonCorrector phoCorr_;
     bbggNonResMVA nonresMVA_;
+    bbggNonResMVA2017 nonresMVA2017_;
     bbggNonResMVA resMVA_;
     flashgg::GlobalVariablesDumper* globVar_;
     //Parameter tokens
@@ -150,7 +152,7 @@ private:
      float leadingPhotonR9full5x5, subleadingPhotonR9full5x5, customLeadingPhotonMVA, customSubLeadingPhotonMVA;
      int leadingPhotonHasGain1, leadingPhotonHasGain6;
      int subLeadingPhotonHasGain1, subLeadingPhotonHasGain6;
-     float HHTagger, HHTagger_LM, HHTagger_HM;
+     float HHTagger, HHTagger2017, HHTagger_LM, HHTagger_HM;
      float ResHHTagger, ResHHTagger_LM, ResHHTagger_HM;
      float MX;
 
@@ -210,9 +212,13 @@ private:
      int doPhotonScale, doPhotonExtraScale, doPhotonSmearing;
      std::string PhotonScaleFile;
      int addNonResMVA;
+     int addNonResMVA2017;
      edm::FileInPath NonResMVAWeights_LowMass, NonResMVAWeights_HighMass;
      edm::FileInPath ResMVAWeights_LowMass, ResMVAWeights_HighMass;
+     edm::FileInPath NonResMVA2017Weights;
+
      std::vector<std::string> NonResMVAVars;
+     std::vector<std::string> NonResMVA2017Vars;
 
      int jetSmear;
      int jetScale;
@@ -263,6 +269,7 @@ private:
      jetSys_ = bbggJetSystematics();
      phoCorr_ = bbggPhotonCorrector();
      nonresMVA_ = bbggNonResMVA();
+     nonresMVA2017_ = bbggNonResMVA2017();
      resMVA_ = bbggNonResMVA();
      NRW    = new NonResWeights();
      //    globVar_ = new flashgg::GlobalVariablesDumper(iConfig,std::forward<edm::ConsumesCollector>(cc));
@@ -287,6 +294,7 @@ private:
      int def_doPhotonScale, def_doPhotonExtraScale, def_doPhotonSmearing;
      std::string def_PhotonScaleFile;
      int def_addNonResMVA ;
+     int def_addNonResMVA2017 ;
      edm::FileInPath def_NonResMVAWeights_LowMass, def_NonResMVAWeights_HighMass;
      edm::FileInPath def_ResMVAWeights_LowMass, def_ResMVAWeights_HighMass;
      std::vector<std::string> def_NonResMVAVars;
@@ -319,6 +327,7 @@ private:
      int def_jetScale = 0;
      std::string def_randomLabel = "";
      def_addNonResMVA = 0;
+     def_addNonResMVA2017 = 0;
      def_NonResMVAWeights_LowMass = edm::FileInPath("flashgg/bbggTools/data/NonResMVA/TMVAClassification_BDT.weights_LowMass.xml");
      def_NonResMVAWeights_HighMass = edm::FileInPath("flashgg/bbggTools/data/NonResMVA/TMVAClassification_BDT.weights_HighMass.xml");
      def_ResMVAWeights_LowMass = edm::FileInPath("flashgg/bbggTools/data/NonResMVA/TMVAClassification_BDT.weights_LowMass.xml");
@@ -427,12 +436,15 @@ private:
      sigmaMdecorrFile = iConfig.getUntrackedParameter<edm::FileInPath>("sigmaMdecorrFile", def_sigmaMdecorrFile); 
 
      addNonResMVA = iConfig.getUntrackedParameter<unsigned int>("addNonResMVA", def_addNonResMVA);
+     addNonResMVA2017 = iConfig.getUntrackedParameter<unsigned int>("addNonResMVA", def_addNonResMVA2017);
+
      NonResMVAWeights_LowMass = iConfig.getUntrackedParameter<edm::FileInPath>("NonResMVAWeights_LowMass", def_NonResMVAWeights_LowMass);
      NonResMVAWeights_HighMass = iConfig.getUntrackedParameter<edm::FileInPath>("NonResMVAWeights_HighMass", def_NonResMVAWeights_HighMass);
      ResMVAWeights_LowMass = iConfig.getUntrackedParameter<edm::FileInPath>("ResMVAWeights_LowMass", def_ResMVAWeights_LowMass);
      ResMVAWeights_HighMass = iConfig.getUntrackedParameter<edm::FileInPath>("ResMVAWeights_HighMass", def_ResMVAWeights_HighMass);
-     NonResMVAVars = iConfig.getUntrackedParameter<std::vector<std::string > >("NonResMVAVars", NonResMVAVars);
 
+     NonResMVAVars = iConfig.getUntrackedParameter<std::vector<std::string > >("NonResMVAVars", NonResMVAVars);
+     NonResMVA2017Vars = iConfig.getUntrackedParameter<std::vector<std::string > >("NonResMVA2017Vars", NonResMVA2017Vars);
      //tokens and labels
      genInfo_ = iConfig.getUntrackedParameter<edm::InputTag>( "genInfo", edm::InputTag("generator") );
      genInfoToken_ = consumes<GenEventInfoProduct>( genInfo_ );
@@ -559,6 +571,10 @@ private:
 	 resMVA_.SetupNonResMVA( ResMVAWeights_LowMass.fullPath().data(), ResMVAWeights_HighMass.fullPath().data(), NonResMVAVars);
      }
 
+     if(addNonResMVA2017) {
+	 nonresMVA2017_.SetupNonResMVA( NonResMVA2017Weights.fullPath().data(), NonResMVA2017Vars);
+     }
+
      if (doDecorr){
        TFile* f_decorr = new TFile((sigmaMdecorrFile.fullPath()).c_str(), "READ");
        h_decorrEBEB_ = (TH2D*)f_decorr->Get("hist_sigmaM_M_EBEB"); 
@@ -655,6 +671,7 @@ private:
      subLeadingPhotonHasGain1 = -10;
      subLeadingPhotonHasGain6 = -10;
      HHTagger = -10;
+     HHTagger2017 = -10;
      HHTagger_LM = -10;
      HHTagger_HM = -10;
      ResHHTagger = -10;
@@ -1190,6 +1207,31 @@ private:
         ResHHTagger = ( (diHiggsCandidate.M()-dijetCandidate.M()-diphotonCandidate.M()+250)<500 ) ? ResHHTagger_LM : ResHHTagger_HM;
     }
 
+    //Fill HHTagger 2017
+    if(addNonResMVA2017) {
+        std::map<std::string, float> HHVars2017;
+        HHVars2017["leadingJet_bDis"] = leadingJet_bDis;
+        HHVars2017["subleadingJet_bDis"] = subleadingJet_bDis;
+        HHVars2017["fabs(CosThetaStar_CS)"] = fabs(CosThetaStar_CS);
+        HHVars2017["fabs(CosTheta_bb)"] = fabs(CosTheta_bb);
+        HHVars2017["fabs(CosTheta_gg)"] = fabs(CosTheta_gg);
+        HHVars2017["diphotonCandidate.Pt()/(diHiggsCandidate.M())"] = diphotonCandidate.Pt()/(diHiggsCandidate.M());
+        HHVars2017["dijetCandidate.Pt()/(diHiggsCandidate.M())"] = dijetCandidate.Pt()/(diHiggsCandidate.M());
+	HHVars2017["customLeadingPhotonIDMVA"] = customLeadingPhotonMVA;
+	HHVars2017["customSubLeadingPhotonIDMVA"] = customSubLeadingPhotonMVA;
+	HHVars2017["leadingPhotonSigOverE"] = leadingPhotonSigOverE;
+	HHVars2017["subleadingPhotonSigOverE"] = subleadingPhotonSigOverE;
+	HHVars2017["sigmaMOverMDecorr"] = sigmaMOverMDecorr;
+	HHVars2017["PhoJetMinDr"] = PhoJetMinDr;
+
+        std::vector<float> myHHTagger2017 = nonresMVA2017_.mvaDiscriminants(HHVars2017);
+        HHTagger2017 = myHHTagger2017[0];
+
+    }
+
+
+
+
     if(DEBUG) std::cout << "[bbggTree::analyze] After filling candidates" << std::endl;
 
     //sigmaMOverM
@@ -1410,6 +1452,7 @@ bbggTree::beginJob()
     tree->Branch("dEta_VBF", &dEta_VBF, "dEta_VBF/F");
     tree->Branch("Mjj_VBF", &Mjj_VBF, "Mjj_VBF/F");
     tree->Branch("HHTagger", &HHTagger, "HHTagger/F"); 
+    tree->Branch("HHTagger2017", &HHTagger, "HHTagger/F"); 
     tree->Branch("HHTagger_LM", &HHTagger_LM, "HHTagger_LM/F"); 
     tree->Branch("HHTagger_HM", &HHTagger_HM, "HHTagger_HM/F"); 
     tree->Branch("ResHHTagger", &ResHHTagger, "ResHHTagger/F"); 
