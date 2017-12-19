@@ -295,9 +295,10 @@ private:
      std::string def_PhotonScaleFile;
      int def_addNonResMVA ;
      int def_addNonResMVA2017 ;
-     edm::FileInPath def_NonResMVAWeights_LowMass, def_NonResMVAWeights_HighMass;
+     edm::FileInPath def_NonResMVAWeights_LowMass, def_NonResMVAWeights_HighMass,def_NonResMVA2017Weights;
      edm::FileInPath def_ResMVAWeights_LowMass, def_ResMVAWeights_HighMass;
      std::vector<std::string> def_NonResMVAVars;
+     std::vector<std::string> def_NonResMVA2017Vars;
      //std::string def_bRegFile;
      edm::FileInPath def_bRegFileLeading, def_bRegFileSubLeading;
 
@@ -330,9 +331,11 @@ private:
      def_addNonResMVA2017 = 0;
      def_NonResMVAWeights_LowMass = edm::FileInPath("flashgg/bbggTools/data/NonResMVA/TMVAClassification_BDT.weights_LowMass.xml");
      def_NonResMVAWeights_HighMass = edm::FileInPath("flashgg/bbggTools/data/NonResMVA/TMVAClassification_BDT.weights_HighMass.xml");
+     def_NonResMVA2017Weights = edm::FileInPath("flashgg/bbggTools/data/MVA2017/allMC_resWeighting_F_noDR_minDRGJet_edited.weights.xml");
      def_ResMVAWeights_LowMass = edm::FileInPath("flashgg/bbggTools/data/NonResMVA/TMVAClassification_BDT.weights_LowMass.xml");
      def_ResMVAWeights_HighMass = edm::FileInPath("flashgg/bbggTools/data/NonResMVA/TMVAClassification_BDT.weights_HighMass.xml");
      def_NonResMVAVars.push_back("");
+     def_NonResMVA2017Vars.push_back("");
 
  //    edm::FileInPath def_resFile = edm::FileInPath("flashgg/bbggTools/data/JetSystematics/Fall15_25nsV2_MC_PtResolution_AK4PFchs.txt");
  //    edm::FileInPath def_sfFile = edm::FileInPath("flashgg/bbggTools/data/JetSystematics/Fall15_25nsV2_MC_SF_AK4PFchs.txt");
@@ -436,10 +439,11 @@ private:
      sigmaMdecorrFile = iConfig.getUntrackedParameter<edm::FileInPath>("sigmaMdecorrFile", def_sigmaMdecorrFile); 
 
      addNonResMVA = iConfig.getUntrackedParameter<unsigned int>("addNonResMVA", def_addNonResMVA);
-     addNonResMVA2017 = iConfig.getUntrackedParameter<unsigned int>("addNonResMVA", def_addNonResMVA2017);
+     addNonResMVA2017 = iConfig.getUntrackedParameter<unsigned int>("addNonResMVA2017", def_addNonResMVA2017);
 
      NonResMVAWeights_LowMass = iConfig.getUntrackedParameter<edm::FileInPath>("NonResMVAWeights_LowMass", def_NonResMVAWeights_LowMass);
      NonResMVAWeights_HighMass = iConfig.getUntrackedParameter<edm::FileInPath>("NonResMVAWeights_HighMass", def_NonResMVAWeights_HighMass);
+     NonResMVA2017Weights = iConfig.getUntrackedParameter<edm::FileInPath>("NonResMVA2017Weights", def_NonResMVA2017Weights);
      ResMVAWeights_LowMass = iConfig.getUntrackedParameter<edm::FileInPath>("ResMVAWeights_LowMass", def_ResMVAWeights_LowMass);
      ResMVAWeights_HighMass = iConfig.getUntrackedParameter<edm::FileInPath>("ResMVAWeights_HighMass", def_ResMVAWeights_HighMass);
 
@@ -1452,7 +1456,7 @@ bbggTree::beginJob()
     tree->Branch("dEta_VBF", &dEta_VBF, "dEta_VBF/F");
     tree->Branch("Mjj_VBF", &Mjj_VBF, "Mjj_VBF/F");
     tree->Branch("HHTagger", &HHTagger, "HHTagger/F"); 
-    tree->Branch("HHTagger2017", &HHTagger, "HHTagger/F"); 
+    tree->Branch("HHTagger2017", &HHTagger2017, "HHTagger2017/F"); 
     tree->Branch("HHTagger_LM", &HHTagger_LM, "HHTagger_LM/F"); 
     tree->Branch("HHTagger_HM", &HHTagger_HM, "HHTagger_HM/F"); 
     tree->Branch("ResHHTagger", &ResHHTagger, "ResHHTagger/F"); 
