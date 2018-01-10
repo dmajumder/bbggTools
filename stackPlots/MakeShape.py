@@ -73,8 +73,8 @@ for plot in plots:
     for background in datasets["background"]:
         if not addbbH and 'bbH' in background: continue
 	if not addHiggs and 'VH' in background: continue
-	if not addHiggs and 'ttH' in background: continue
-	if not addHiggs and 'ggH' in background: continue
+	if not addggHttH and 'ttH' in background: continue
+	if not addggHttH and 'ggH' in background: continue
 	if not addHiggs and 'VBF' in background: continue
         if not dyjets and "DYJ" in background: continue
         if "QCD" in background: continue

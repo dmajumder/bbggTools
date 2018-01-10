@@ -497,7 +497,7 @@ def MakeLegend(HistList, DataHist, lumi, Signals, SUM, hideData, hideStat):
 	leg1 = TLegend(0.68, 0.85-lenPerHist*float(nMaxPerBox), 0.74, 0.89)
 #	if (3*nMaxPerBox > len(newList)+len(Signals)+2):
 #		nMaxPerBox -= 1
-	leg2 = TLegend(0.43, 0.85-lenPerHist*float(nMaxPerBox)/2.5, 0.49, 0.89)
+	leg2 = TLegend(0.43, 0.85-lenPerHist*float(nMaxPerBox)/1.75, 0.49, 0.89)
 
 	leg3 = TLegend(0.13, 0.85-lenPerHist*float(nMaxPerBox), 0.19, 0.89)
 	
@@ -538,9 +538,13 @@ def MakeLegend(HistList, DataHist, lumi, Signals, SUM, hideData, hideStat):
 			if hideStat:
 				print "no stat!"
 				continue
+			
 		iLeg = i//nMaxPerBox
 		if hideData and hideStat and 'on' in l[1]:#non resonant, radion, graviton
 			iLeg=1
+		print "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+		print "i:",i,"iLeg:",iLeg, l,nMaxPerBox
+		print "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 		legends[iLeg].AddEntry(l[0], ' '+l[1], Type)
 
         textFont = 43
@@ -553,3 +557,5 @@ def MakeLegend(HistList, DataHist, lumi, Signals, SUM, hideData, hideStat):
 		leg.SetTextSize(textSize)
 
 	return legends
+
+

@@ -1,6 +1,6 @@
 {
     "processes" : {
-        "GluGluToHHTo2B2G_node_2_13TeV-madgraph" : [
+         "GluGluToHHTo2B2G_node_2_13TeV-madgraph" : [
             ["/GluGluToHHTo2B2G_node_2_13TeV-madgraph", {"args" : ["doDoubleCountingMitigation=0","PURW=True"]}]
         ],
         "GluGluToHHTo2B2G_node_SM_13TeV-madgraph" : [

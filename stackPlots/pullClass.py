@@ -39,6 +39,7 @@ class myStack:
 		self.hideStat_ = 0
 		self.doShape_ = 0
 		self.useJsonWeighting_ = 1
+		self.addggHttH_ = 0
 	def hideData(self):
 		self.hideData_ = 1
 	def hideStat(self):
@@ -72,6 +73,9 @@ class myStack:
 		self.doShape_ = 1
 	def useJsonWeighting(self):
 		self.useJsonWeighting_ = 1
+	def addggHttH(self):
+		self.addggHttH_ = 1
+
 
 	def drawStack(self, fileName):
 		if len(self.myHistograms) < 1:

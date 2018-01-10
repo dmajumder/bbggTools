@@ -39,7 +39,8 @@ lumi = 35870#pb
 MCSF = 1.0
 #List of datasets to be used (cross section information defined there)
 #data_file = open("datasets/datasets80X_Moriond_onlyNRSM.json")
-data_file = open("datasets/datasets80X_Moriond_onlyNRSM_separateGJ.json")
+#data_file = open("datasets/datasets80X_Moriond_onlyNRSM_separateGJ.json")
+data_file = open("datasets/datasets80X_Moriond_onlyNRSM_withBJetSamples.json")
 
 #number of bins in histograms
 nbin = 30
@@ -54,7 +55,7 @@ dr_hh="sqrt( (diphotonCandidate.Eta() - dijetCandidate.Eta())*(diphotonCandidate
 
 #plots will be saved in dirName
 prefix = ""
-dirSuffix = "20170717_stack"
+dirSuffix = "20171002_stackSF145"
 dirPrefix = "/afs/cern.ch/user/m/micheli/www/plots/HHBBGG/"
 dirName = dirPrefix + dirSuffix
 
@@ -74,15 +75,35 @@ plots = []
 
 plots.append(["diPho_Mass", "diphotonCandidate.M()", "M(#gamma#gamma) [GeV]", 80, 100, 180])
 plots.append(["diJet_Mass", "dijetCandidate.M()", "M(jj) [GeV]", 36, 70, 178])
-plots.append(["leadingPhoton_pt", "leadingPhoton.Pt()", "p_{T}(#gamma_{1}) [GeV]", 60, 30, 300])
 #plots.append(["leadingPhoton_pt_overM", "leadingPhoton.Pt()/diphotonCandidate.M()", "p_{T}(#gamma1)/M_{#gamma#gamma}", nbin, 0, 1] )
 
-'''
-
-
+#MVA variables
 plots.append(["PhotonIDMVA2", "(customSubLeadingPhotonIDMVA)", "SubLeading Photon Id MVA", nbin, -1, 1])
 plots.append(["PhotonIDMVA1", "(customLeadingPhotonIDMVA)", "Leading Photon Id MVA ", nbin, -1, 1])
 
+plots.append(["costhetastar_cs", "fabs(CosThetaStar_CS)", "|cos#theta*|_{CS}", nbin, 0, 1])
+
+plots.append(["CosTheta_gg", "fabs(CosTheta_gg)", "|Cos(#theta_{#gamma#gamma})|", nbin, 0, 1])
+plots.append(["CosTheta_bb", "fabs(CosTheta_bb)", "|Cos(#theta_{bb})|", nbin, 0, 1])
+
+plots.append(["diPhoton_pt_overM", "diphotonCandidate.Pt()/diHiggsCandidate.M()", "p_{T}(#gamma#gamma)/M_{jj#gamma#gamma}", nbin, 0, 1] )
+plots.append(["diJet_pt_overM", "dijetCandidate.Pt()/diHiggsCandidate.M()", "p_{T}(jj)/M_{jj#gamma#gamma}", nbin, 0, 1] )
+plots.append(["leadingJet_btag", "leadingJet_bDis", "b-tag leading jet", nbin, 0, 1])
+plots.append(["subleadingJet_btag", "subleadingJet_bDis", "b-tag subleading jet", nbin, 0, 1])
+
+plots.append(["leadingPhotonSigOverE", "leadingPhotonSigOverE", "Leading Photon #sigma_{E}/E", nbin, 0, 0.1])
+plots.append(["subleadingPhotonSigOverE", "subleadingPhotonSigOverE", "Subleading Photon #sigma_{E}/E", nbin, 0, 0.1])
+plots.append(["sigmaMOverMDecorr", "sigmaMOverMDecorr", "#sigma_{M_{decorr}}/M", nbin, 0, 0.1])
+
+#possible MVA variables
+plots.append(["Phi0", "Phi0", "#Phi", nbin, -3.5, 3.5])
+plots.append(["Phi1", "Phi1", "#Phi_{1}", nbin, -3.5, 3.5])
+plots.append(["PhoJetMinDr","PhoJetMinDr", "min DR(#gamma,jet)", nbin, 0, 6])
+plots.append(["DiJetEta", "dijetCandidate.Eta()", "#eta(jj)", nbin, -3, 3] )
+plots.append(["DiPhotonEta", "diphotonCandidate.Eta()", "#eta(#gamma#gamma)", nbin, -3, 3] )
+
+
+'''
 plots.append(["leadingPhoton_pt", "leadingPhoton.Pt()", "p_{T}(#gamma_{1}) [GeV]", 60, 30, 300])
 #plots.append(["MX", "diHiggsCandidate.M() - dijetCandidate.M() + 125.", "#tilde{M}_{X} (GeV)", 40, 200, 1000])
 
@@ -90,10 +111,6 @@ plots.append(["leadingPhoton_pt", "leadingPhoton.Pt()", "p_{T}(#gamma_{1}) [GeV]
 
 plots.append(["nvtx", "nvtx", "Number of vertices", 50, 0, 50])
 plots.append(["dicandidate_Mass", "diHiggsCandidate.M()", "M(jj#gamma#gamma) [GeV]", nbin, 100, 1000])
-plots.append(["costhetastar_cs", "fabs(CosThetaStar_CS)", "|cos#theta*|_{CS}", nbin, 0, 1])
-
-plots.append(["CosTheta_gg", "fabs(CosTheta_gg)", "|Cos(#theta_{#gamma#gamma})|", nbin, 0, 1])
-plots.append(["CosTheta_bb", "fabs(CosTheta_bb)", "|Cos(#theta_{bb})|", nbin, 0, 1])
 
 plots.append(["j1ratio_dijet", "leadingJet.Pt()/dijetCandidate.M()", "p_{T}(j_{1})/M(jj)", nbin, 0.1, 1.5])
 plots.append(["dijet_deta", "fabs(leadingJet.Eta() - subleadingJet.Eta())", "#Delta#eta between jets", nbin, 0, 5])
@@ -119,18 +136,11 @@ plots.append(["dr_subleadPhoLeadJet", dr_subleadPhoLeadJet, "#DeltaR (#gamma_{su
 plots.append(["dr_subleadPhoSubeadJet", dr_subleadPhoSubleadJet, "#DeltaR (#gamma_{sublead} jet_{sublead})", nbin, 0, 8])
 
 plots.append(["dphi_hh", dphi_hh, "#Delta#Phi (hh)", nbin, 0, 8])
-plots.append(["diPhoton_pt_overM", "diphotonCandidate.Pt()/diHiggsCandidate.M()", "p_{T}(#gamma#gamma)/M_{jj#gamma#gamma}", nbin, 0, 1] )
-plots.append(["diJet_pt_overM", "dijetCandidate.Pt()/diHiggsCandidate.M()", "p_{T}(jj)/M_{jj#gamma#gamma}", nbin, 0, 1] )
-plots.append(["leadingJet_btag", "leadingJet_bDis", "b-tag leading jet", nbin, 0, 1])
-plots.append(["subleadingJet_btag", "subleadingJet_bDis", "b-tag subleading jet", nbin, 0, 1])
 
 plots.append(["DiJetDiPho_DR", "DiJetDiPho_DR", "#DeltaR(#gamma#gamma,jj)", nbin, 0, 8])
 plots.append(["dr_hh", dr_hh, "#DeltaR (hh)", nbin, 0, 8])
 
 
-plots.append(["leadingPhotonSigOverE", "leadingPhotonSigOverE", "Leading Photon #sigma_{E}/E", nbin, 0, 0.1])
-plots.append(["subleadingPhotonSigOverE", "subleadingPhotonSigOverE", "Subleading Photon #sigma_{E}/E", nbin, 0, 0.1])
-plots.append(["sigmaMOverMDecorr", "sigmaMOverMDecorr", "#sigma_{M_{decorr}}/M", nbin, 0, 0.1])
 
 '''
 

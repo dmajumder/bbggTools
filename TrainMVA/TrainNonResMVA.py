@@ -2,10 +2,10 @@ import ROOT
 
 # Get the data from the ROOT file
 root_bkg = ROOT.TChain('bbggSelectionTree')
-root_bkg.AddFile('/afs/cern.ch/work/m/micheli/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/test/RunJobs/Background/output_DiPhotonJetsBox_MGG-80toInf_13TeV-Sherpa.root')
+root_bkg.AddFile('/afs/cern.ch/work/m/micheli/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/test/RunJobs/Background_20170620/output_DiPhotonJetsBox_MGG-80toInf_13TeV-Sherpa.root')
 print 'Background events:',root_bkg.GetEntries()
 root_sig = ROOT.TChain('bbggSelectionTree')
-root_sig.AddFile('/afs/cern.ch/user/m/micheli/scratch1/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/TrainMVA/AllNonResSig.root ')
+root_sig.AddFile(' /afs/cern.ch/user/m/micheli/scratch1/CMSSW_8_0_26_patch1/src/flashgg/bbggTools/TrainMVA/AllNonResSig_20170620.root')
 #root_sig.AddFile('res_lowmass.root')
 print 'Signal events:',root_sig.GetEntries()
 
@@ -48,6 +48,8 @@ mvaVars = [
 
 for x in mvaVars:
     factory.AddVariable(x,"F")
+
+
 
 # Link the signal and background to the root_data ntuple
 factory.AddSignalTree(root_sig)
