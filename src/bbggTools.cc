@@ -121,6 +121,35 @@ bool bbggTools::passHgg76XPreselection(const flashgg::DiPhotonCandidate * dipho,
 
 }
 
+bool bbggTools::passPreselectionTnP2016(const flashgg::DiPhotonCandidate * dipho, std::map<std::string, int> myTriggersResults){
+
+    bool isPreselected = false;
+
+    if ( myTriggersResults["HLT_Ele27_WPTight_Gsf_v"] != 1 )
+      return false;
+
+
+    if ( ( dipho->leadingPhoton()->full5x5_r9() > 0.8
+           || dipho->leadingPhoton()->egChargedHadronIso() < 20
+           || dipho->leadingPhoton()->egChargedHadronIso()/dipho->leadingPhoton()->pt() < 0.3 )
+         &&
+         ( dipho->subLeadingPhoton()->full5x5_r9() > 0.8
+           || dipho->subLeadingPhoton()->egChargedHadronIso() < 20
+           || dipho->subLeadingPhoton()->egChargedHadronIso()/dipho->subLeadingPhoton()->pt() < 0.3)
+         && ( dipho->leadingPhoton()->hadronicOverEm() < 0.08 && dipho->subLeadingPhoton()->hadronicOverEm() < 0.08 )
+         && ( dipho->leadingPhoton()->pt() > 30 && dipho->subLeadingPhoton()->pt() > 20)
+         && ( fabs(dipho->leadingPhoton()->superCluster()->eta()) < 2.5 && fabs(dipho->subLeadingPhoton()->superCluster()->eta()) < 2.5 )
+         && ( fabs(dipho->leadingPhoton()->superCluster()->eta()) < 1.4442 ||  fabs(dipho->leadingPhoton()->superCluster()->eta()) > 1.566 )
+         && ( fabs(dipho->subLeadingPhoton()->superCluster()->eta()) < 1.4442 ||  fabs(dipho->subLeadingPhoton()->superCluster()->eta()) > 1.566 )
+       ) {
+	    isPreselected = true;
+       }
+
+    if (isPreselected) return true;
+    else return false;
+
+
+}
 
 std::vector<flashgg::DiPhotonCandidate> bbggTools::DiPhoton76XPreselection(vector<flashgg::DiPhotonCandidate> diphoCol, std::map<std::string, int> myTriggersResults)
 {
@@ -157,6 +186,26 @@ std::vector<flashgg::DiPhotonCandidate> bbggTools::DiPhotonPreselection(vector<f
     return selDiPhos;
 }
 
+std::vector<flashgg::DiPhotonCandidate> bbggTools::DiPhotonPreselectionTnP2016(vector<flashgg::DiPhotonCandidate> diphoCol, std::map<std::string, int> myTriggersResults)
+{
+    std::vector<flashgg::DiPhotonCandidate> selDiPhos;
+
+    for ( unsigned int dp = 0; dp < diphoCol.size(); dp++)
+    {
+      flashgg::DiPhotonCandidate dipho = diphoCol[dp];
+
+      if (passPreselectionTnP2016(&dipho, myTriggersResults)){
+	selDiPhos.push_back(dipho);
+	continue;
+      }
+
+    }
+
+    return selDiPhos;
+}
+
+
+
 std::map<std::string,int> bbggTools::TriggerSelection(std::vector<std::string> myTriggers, const edm::TriggerNames &names, edm::Handle<edm::TriggerResults> triggerBits)
 {
     std::map<std::string,int> triggerResults;
@@ -165,7 +214,7 @@ std::map<std::string,int> bbggTools::TriggerSelection(std::vector<std::string> m
         int accepted = 0;
         for ( unsigned int i = 0; i < triggerBits->size(); i++)
         {
-//            if(DEBUG) std::cout << "[bbggTools::TriggerSelection] Trigger name: " << names.triggerName(i) << " \t Decision: " << triggerBits->accept(i) << std::endl;
+//            if(DEBUG) 	  std::cout << "[bbggTools::TriggerSelection] Trigger name: " << names.triggerName(i) << " \t Decision: " << triggerBits->accept(i) << std::endl;
             if((names.triggerName(i)).find(myTriggers[j]) != std::string::npos )
             {
                 if(triggerBits->accept(i) == 1){

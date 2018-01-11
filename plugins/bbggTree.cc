@@ -209,6 +209,7 @@ private:
      unsigned int DoMVAPhotonID;
      edm::FileInPath bRegFileLeading, bRegFileSubLeading;
      unsigned int is2016, doCustomPhotonMVA;
+     unsigned int doTnP;
      int doPhotonScale, doPhotonExtraScale, doPhotonSmearing;
      std::string PhotonScaleFile;
      int addNonResMVA;
@@ -281,6 +282,7 @@ private:
      //Default values for thresholds
      std::string def_bTagType, def_PhotonMVAEstimator;
      unsigned int def_is2016 = 1;
+     unsigned int def_doTnP = 0;
      std::vector<double> def_ph_pt, def_ph_eta, def_ph_r9;
      std::vector<double> def_diph_pt, def_diph_eta, def_diph_mass, def_MVAPhotonID;
      std::vector<double> def_jt_pt, def_jt_eta, def_jt_drPho, def_jt_bDis;
@@ -378,6 +380,7 @@ private:
      phCorrEE = iConfig.getUntrackedParameter<std::vector<double > >("phCorrEE");
 
      is2016 = iConfig.getUntrackedParameter<unsigned int>("is2016", def_is2016);
+     doTnP = iConfig.getUntrackedParameter<unsigned int>("doTnP", def_doTnP);
 
      BenchNum = iConfig.getUntrackedParameter<unsigned int>("benchmark", 0);
 
@@ -881,6 +884,13 @@ private:
     vector<flashgg::DiPhotonCandidate> PreSelDipho;
     if(is2016) PreSelDipho = tools_.DiPhotonPreselection( diphotonCollection );
     if(!is2016) PreSelDipho = tools_.DiPhoton76XPreselection( diphotonCollection, myTriggerResults);
+    if(doTnP && is2016){
+      Handle<edm::TriggerResults> trigResults;
+      iEvent.getByToken(triggerToken_, trigResults);
+      const edm::TriggerNames &names = iEvent.triggerNames(*trigResults);
+      myTriggerResults = tools_.TriggerSelection(myTriggers, names, trigResults);
+      PreSelDipho = tools_.DiPhotonPreselectionTnP2016( diphotonCollection, myTriggerResults);
+    }
     if(DEBUG) std::cout << "[bbggTree::analyze] Number of pre-selected diphotons: " << PreSelDipho.size() << std::endl;
     //If no diphoton passed presel, skip event
     if ( PreSelDipho.size() < 1 ) return;
