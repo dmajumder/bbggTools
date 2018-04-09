@@ -141,7 +141,7 @@ for icoll,coll in enumerate(recoJetCollections):
     producer =   cms.EDProducer('flashggbRegressionProducer',
 				JetTag=coll,
 				rhoFixedGridCollection = cms.InputTag('fixedGridRhoAll'),
-				bRegressionWeightfile= cms.FileInPath("flashgg/Taggers/data/xgboost_bRegression.weights.xml"), 
+#				bRegressionWeightfile= cms.FileInPath("flashgg/Taggers/data/xgboost_bRegression.weights.xml"), 
 				)
     setattr(process,"bRegProducer%d" %icoll,producer)
     bregProducers.append(producer)

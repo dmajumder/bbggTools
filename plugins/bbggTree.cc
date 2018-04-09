@@ -1124,6 +1124,7 @@ void
     }
 
     if (DEBUG) std::cout << "Jet collection picked: " << diphoCand.jetCollectionIndex() << std::endl;
+    std::cout<<"corr:"<<LeadingJet.userFloat("bRegNNCorr");
 
     nPromptInDiPhoton = 999;
     if ( genInfo.isValid() ){
