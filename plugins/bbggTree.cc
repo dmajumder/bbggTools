@@ -170,6 +170,10 @@ private:
     float ResHHTagger, ResHHTagger_LM, ResHHTagger_HM;
     float MX, sumEt;
     TGraph *HHTagger2017_cumulative;
+
+    //NN b-regression
+    float leadingJet_bRegNNCorr,leadingJet_bRegNNResolution;
+    float subleadingJet_bRegNNCorr,subleadingJet_bRegNNResolution;
     
     double genTotalWeight;
     unsigned int nPromptInDiPhoton;
@@ -750,6 +754,13 @@ void
     ResHHTagger_LM = -10;
     ResHHTagger_HM = -10;
 
+    leadingJet_bRegNNCorr=-10;
+    leadingJet_bRegNNResolution=-10;
+
+    subleadingJet_bRegNNCorr=-10;
+    subleadingJet_bRegNNResolution=-10;
+
+
     dEta_VBF = -999; 
     Mjj_VBF = 0;
 
@@ -1124,7 +1135,6 @@ void
     }
 
     if (DEBUG) std::cout << "Jet collection picked: " << diphoCand.jetCollectionIndex() << std::endl;
-    std::cout<<"corr:"<<LeadingJet.userFloat("bRegNNCorr");
 
     nPromptInDiPhoton = 999;
     if ( genInfo.isValid() ){
@@ -1161,6 +1171,14 @@ void
     leadingJet_cMVA = LeadingJet.bDiscriminator("pfCombinedMVAV2BJetTags");
     subleadingJet_CSVv2 = SubLeadingJet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
     subleadingJet_cMVA = SubLeadingJet.bDiscriminator("pfCombinedMVAV2BJetTags");;
+
+    //NN b-regression
+    leadingJet_bRegNNCorr =  LeadingJet.userFloat("bRegNNCorr");
+    leadingJet_bRegNNResolution =  LeadingJet.userFloat("bRegNNResolution");
+
+    subleadingJet_bRegNNCorr =  SubLeadingJet.userFloat("bRegNNCorr");
+    subleadingJet_bRegNNResolution =  SubLeadingJet.userFloat("bRegNNResolution");
+
 
      //..... gen jets info 
  
@@ -1551,7 +1569,13 @@ bbggTree::beginJob()
     tree->Branch("subleadingJet_cMVA", &subleadingJet_cMVA, "subleadingJet_cMVA/F");
     tree->Branch("subleadingJet_flavour", &subleadingJet_flavour, "subleadingJet_flavour/I");
     tree->Branch("subleadingJet_hadFlavour", &subleadingJet_hadFlavour, "subleadingJet_hadFlavour/I");
-         //gen jets info
+    //NN b-regression
+    tree->Branch("leadingJet_bRegNNCorr",&leadingJet_bRegNNCorr, "leadingJet_bRegNNCorr/F");
+    tree->Branch("leadingJet_bRegNNResolution",&leadingJet_bRegNNResolution, "leadingJet_bRegNNResolution/F");
+    tree->Branch("subleadingJet_bRegNNCorr",&subleadingJet_bRegNNCorr, "subleadingJet_bRegNNCorr/F");
+    tree->Branch("subleadingJet_bRegNNResolution",&subleadingJet_bRegNNResolution, "subleadingJet_bRegNNResolution/F");
+
+    //gen jets info
      tree->Branch("leadingJet_genPtb",&leadingJet_genPtb, "leadingJet_genPtb/F");
      tree->Branch("leadingJet_genPartonidb",&leadingJet_genPartonidb, "leadingJet_genPartonidb/F");
      tree->Branch("leadingJet_genFlavourb",&leadingJet_genFlavourb, "leadingJet_genFlavourb/F");
