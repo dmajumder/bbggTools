@@ -146,6 +146,7 @@ private:
     //Tree objects
     LorentzVector leadingPhoton, subleadingPhoton, diphotonCandidate;
     LorentzVector leadingJet, subleadingJet, dijetCandidate;
+    LorentzVector leadingJetCorr, subleadingJetCorr, dijetCandidateCorr;
     LorentzVector leadingJet_VBF, subleadingJet_VBF, DijetVBF;
     LorentzVector leadingMuon, subleadingMuon, leadingElectron, subleadingElectron; 
     LorentzVector p4MET;
@@ -218,6 +219,7 @@ private:
     std::vector<double> dijt_pt, dijt_eta, dijt_mass;
     std::vector<double> cand_pt, cand_eta, cand_mass, dr_cands;
     unsigned int nPromptPhotons, doDoubleCountingMitigation, doPhotonCR, doJetRegression;
+    unsigned int doNNJetRegression; 
     std::vector<std::string> myTriggers;
     std::string bTagType, PhotonMVAEstimator;
     unsigned int DoMVAPhotonID;
@@ -354,6 +356,7 @@ inputTagJets_( iConfig.getParameter<std::vector<edm::InputTag> >( "inputTagJets"
     unsigned int def_doDoubleCountingMitigation = 0;
     unsigned int def_doPhotonCR = 0;
     unsigned int def_doJetRegression = 0;
+    unsigned int def_doNNJetRegression = 0;
     unsigned int def_DoMVAPhotonID = 0;
     int def_jetSmear = 0;
     int def_jetScale = 0;
@@ -452,6 +455,7 @@ inputTagJets_( iConfig.getParameter<std::vector<edm::InputTag> >( "inputTagJets"
     dijt_eta  = iConfig.getUntrackedParameter<std::vector<double > >("DiJetEta", def_dijt_eta);
     dijt_mass = iConfig.getUntrackedParameter<std::vector<double > >("DiJetMassWindow", def_dijt_mass);
     doJetRegression = iConfig.getUntrackedParameter<unsigned int>("doJetRegression", def_doJetRegression);
+    doNNJetRegression = iConfig.getUntrackedParameter<unsigned int>("doNNJetRegression", def_doNNJetRegression);
     bTagType = iConfig.getUntrackedParameter<std::string>( "bTagType", def_bTagType );
     bRegFileLeading = iConfig.getUntrackedParameter<edm::FileInPath>("bRegFileLeading", def_bRegFileLeading);
     bRegFileSubLeading = iConfig.getUntrackedParameter<edm::FileInPath>("bRegFileSubLeading", def_bRegFileSubLeading);
@@ -1163,6 +1167,17 @@ void
     leadingJet_flavour = LeadingJet.partonFlavour();
     leadingJet_hadFlavour = LeadingJet.hadronFlavour();
     subleadingJet = SubLeadingJet.p4();
+    if(doNNJetRegression){
+      TLorentzVector lead, sublead;
+      lead.SetPtEtaPhiE(leadingJet.pt()*LeadingJet.userFloat("bRegNNCorr"),leadingJet.eta(),leadingJet.phi(),leadingJet.e()*LeadingJet.userFloat("bRegNNCorr"));
+      leadingJetCorr.SetPxPyPzE(lead.Px(),lead.Py(),lead.Pz(),lead.E());
+
+      sublead.SetPtEtaPhiE(subleadingJet.pt()*SubLeadingJet.userFloat("bRegNNCorr"),subleadingJet.eta(),subleadingJet.phi(),subleadingJet.e()*SubLeadingJet.userFloat("bRegNNCorr"));
+      subleadingJetCorr.SetPxPyPzE(sublead.Px(),sublead.Py(),sublead.Pz(),sublead.E());
+
+
+    }
+
     subleadingJet_bDis = SubLeadingJet.bDiscriminator(bTagType);
     subleadingJet_flavour = SubLeadingJet.partonFlavour();
     subleadingJet_hadFlavour = SubLeadingJet.hadronFlavour();
@@ -1224,6 +1239,7 @@ void
 
 
     dijetCandidate = leadingJet + subleadingJet;
+    if (doNNJetRegression)dijetCandidateCorr = leadingJetCorr + subleadingJetCorr;
     diHiggsCandidate = diphotonCandidate + dijetCandidate;
 
     MX = diHiggsCandidate.M() - diphotonCandidate.M() - dijetCandidate.M() + 250;
@@ -1552,6 +1568,7 @@ bbggTree::beginJob()
     tree->Branch("diphotonCandidate", &diphotonCandidate);
     tree->Branch("nPromptInDiPhoton", &nPromptInDiPhoton, "nPromptInDiPhoton/I");
     tree->Branch("leadingJet", &leadingJet);
+    tree->Branch("leadingJetCorr", &leadingJetCorr);
     tree->Branch("leadingJet_KF", &leadingJet_KF);
     tree->Branch("leadingJet_Reg", &leadingJet_Reg);
     tree->Branch("leadingJet_RegKF", &leadingJet_RegKF);
@@ -1561,6 +1578,7 @@ bbggTree::beginJob()
     tree->Branch("leadingJet_flavour", &leadingJet_flavour, "leadingJet_flavour/I");
     tree->Branch("leadingJet_hadFlavour", &leadingJet_hadFlavour, "leadingJet_hadFlavour/I");
     tree->Branch("subleadingJet", &subleadingJet);
+    tree->Branch("subleadingJetCorr", &subleadingJetCorr);
     tree->Branch("subleadingJet_KF", &subleadingJet_KF);
     tree->Branch("subleadingJet_Reg", &subleadingJet_Reg);
     tree->Branch("subleadingJet_RegKF", &subleadingJet_RegKF);
@@ -1596,6 +1614,7 @@ bbggTree::beginJob()
     tree->Branch("HHTagger2017_transform", &HHTagger2017_transform, "HHTagger2017_transform/F"); 
 
     tree->Branch("dijetCandidate", &dijetCandidate);
+    tree->Branch("dijetCandidateCorr", &dijetCandidateCorr);
     tree->Branch("dijetCandidate_KF", &dijetCandidate_KF);
     tree->Branch("dijetCandidate_Reg", &dijetCandidate_Reg);
     tree->Branch("dijetCandidate_RegKF", &dijetCandidate_RegKF);

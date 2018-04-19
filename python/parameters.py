@@ -65,6 +65,7 @@ _JetDrPho		=	cms.untracked.vdouble(0.4, 0.4) #DeltaR between jets and photon
 _CandidatesDeltaR	=	cms.untracked.vdouble(0.0) #DeltaR between dijet and diphoton candidates
 _JetDoID		=	cms.untracked.vint32(1, 1) #Do jet ID? 0: jet1, 1: jet2
 _doJetRegression	=	cms.untracked.uint32(0)
+_doNNJetRegression	=	cms.untracked.uint32(1)
 _bRegFileLeading      	=  	cms.untracked.FileInPath("flashgg/bbggTools/data/BRegression/2016/BDTG_15plus3_jetGenJet_nu_leading_summer16_3_24.weights.xml")
 _bRegFileSubLeading     =  	cms.untracked.FileInPath("flashgg/bbggTools/data/BRegression/2016/BDTG_15plus3_jetGenJet_nu_trailing_summer16_3_24.weights.xml")
 
