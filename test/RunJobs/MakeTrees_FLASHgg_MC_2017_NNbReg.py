@@ -143,7 +143,7 @@ for icoll,coll in enumerate(recoJetCollections):
     producer =   cms.EDProducer('flashggbRegressionProducer',
 				JetTag=coll,
 				rhoFixedGridCollection = cms.InputTag('fixedGridRhoAll'),
-				bRegressionWeightfile= cms.untracked.string("/afs/cern.ch/work/m/micheli/flashgg_20180323/CMSSW_8_0_28/src/flashgg/MetaData/data/DNN_models/model-09"), 
+				bRegressionWeightfile= cms.untracked.string("/afs/cern.ch/work/m/micheli/flashgg_20180323/CMSSW_8_0_28/src/flashgg/MetaData/data/DNN_models/model-18"), 
 				y_mean = cms.untracked.double(1.0454729795455933),#check /afs/cern.ch/work/m/micheli/CMSSW_8_0_28/src/flashgg/MetaData/data/DNN_models/config.json
 				y_std = cms.untracked.double( 0.31628304719924927)
 				)
