@@ -74,7 +74,7 @@ void bbggPhotonCorrector::SmearPhoton(flashgg::Photon & photon)
     unsigned int gain=12;
     if(photon.hasSwitchToGain1()) gain=1;
     if(photon.hasSwitchToGain6()) gain=6;
-    auto sigma = scaler_.getSmearingSigma(runNumber_, photon.isEB(), photon.full5x5_r9(), photon.superCluster()->eta(), photon.et(), gain, variation_,variation_);
+    auto sigma = scaler_.getSmearingSigma(runNumber_, photon.isEB(), photon.full5x5_r9(), photon.superCluster()->eta(), photon.et(), gain, variation_);
     float rnd = photon.userFloat(randomLabel_);
     float smearing = (1. + rnd * sigma);
     if( DEBUG ) {
@@ -93,13 +93,13 @@ void bbggPhotonCorrector::ScalePhoton(flashgg::Photon & photon)
 
     auto shift_val = scaler_.ScaleCorrection(runNumber_, photon.isEB(), photon.full5x5_r9(), photon.superCluster()->eta(), photon.et());
 
-    std::bitset<EnergyScaleCorrection_class::scAll> source_all(std::string("111"));
+//    std::bitset<EnergyScaleCorrection_class::scAll> source_all(std::string("111"));
 //    std::bitset<EnergyScaleCorrection_class::scAll> stat(std::string("001"));
 //    std::bitset<EnergyScaleCorrection_class::scAll> syst(std::string("010"));
 //    std::bitset<EnergyScaleCorrection_class::scAll> gain(std::string("100"));
 
     auto shift_err = scaler_.ScaleCorrectionUncertainty(runNumber_, photon.isEB(), photon.full5x5_r9(), photon.superCluster()->eta(),
-							photon.et(), gain, source_all);
+							photon.et()) ; //, gain, source_all);
     if (abs(variation_)) shift_val = 1.;
     float scale = shift_val + variation_ * shift_err;
 
